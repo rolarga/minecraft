@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="BukkitPlayground:jar">
+    <output-path>$USER_HOME$/Desktop/craftbukkit/plugins/</output-path>
+    <root id="archive" name="BukkitPlayground.jar">
+      <element id="module-output" name="BukkitPlayground" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
+    </root>
+  </artifact>
+</component>

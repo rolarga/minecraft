@@ -1,0 +1,10 @@
+name: BukkitPlayground
+version: 0.0.1
+main: ch.bukkit.playground.Plugin
+commands:
+  instantop:
+    description: instant battle op commands
+    usage: /instantop
+  instant:
+    description: instant battle register/unregister
+    usage: /instant join|leave

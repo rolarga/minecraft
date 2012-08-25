@@ -5,7 +5,9 @@ import ch.bukkit.playground.instant.listener.ArenaListener;
 import ch.bukkit.playground.instant.tasks.ArenaTask;
 import ch.bukkit.playground.util.DateFormatter;
 import com.mysql.jdbc.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -26,10 +28,7 @@ public class InstantHandler {
     ArenaTask arenaTask;
 
     public InstantHandler() {
-        new ArenaListener(arena);
-
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File("./plugins/BukkitPlayground/arenas.yml"));
-
     }
 
     public void registerPlayer(Player player) {
@@ -48,7 +47,24 @@ public class InstantHandler {
         }
     }
 
+    public void specJoin(Player player) {
+        arena.addSpecator(player, player.getLocation());
+        player.teleport(arena.getPosSpectator());
+        player.sendMessage(ChatColor.GREEN + "You joined the spectator lounge.");
+    }
+
+    public void specLeave(Player player) {
+        Location loc = arena.getSpectators().remove(player);
+        if(loc != null) {
+            player.teleport(arena.getPosSpectator());
+            player.sendMessage(ChatColor.GREEN + "You left the spectator lounge.");
+        } else {
+            player.sendMessage(ChatColor.RED + "You were not a spectator.");
+        }
+    }
+
     public void handleArena(String name, String arg1, String arg2, Player player) {
+        arena.setName(name);
         if("pos1".equals(arg1)) {
             arena.setPos1(player.getLocation());
             logger.info("Location1: " + player.getLocation().getX() + " " + player.getLocation().getY() + " " + player.getLocation().getZ());
@@ -64,24 +80,16 @@ public class InstantHandler {
             if(StringUtils.isNullOrEmpty(arg2)) {
                 player.sendMessage(ChatColor.YELLOW + "Please specify a number when the game should start: '/instantop starttime 6' will start the game in 6 minutes");
             }
-            arena.setTime(Integer.parseInt(arg2));
-            arenaTask = new ArenaTask(arena);
-            int timeInMillis = (1 + arena.getTime()) * 60 * 1000;
-            timer.schedule(arenaTask, 0, timeInMillis);
+            startArena(arg2);
         }
 
         if("forcestop".equals(arg1) && arenaTask != null) {
-            arenaTask.stop();
             arenaTask.cancel();
         }
 
         if("restart".equals(arg1) && arenaTask != null) {
-            arenaTask.stop();
             arenaTask.cancel();
-            arena.setTime(Integer.parseInt(arg2));
-            arenaTask = new ArenaTask(arena);
-            int timeInMillis = (1 + arena.getTime()) * 60 * 1000;
-            timer.schedule(arenaTask, 0, timeInMillis);
+            startArena(arg2);
         }
 
         if("stat".equals(arg1)) {
@@ -90,18 +98,61 @@ public class InstantHandler {
                 player.sendMessage("Registered Player: " + s);
             }
             for (Player p : arena.getActivePlayers().keySet()) {
-                player.sendMessage("Registered Player: " + p.getName());
+                player.sendMessage("Active Player: " + p.getName());
             }
             player.sendMessage("End Date: " + DateFormatter.format(arena.getEndDate()));
             player.sendMessage("Earliest Next round: " + DateFormatter.format(new Date(arena.getEndDate().getTime() + 300000)));
         }
 
+        if("kick".equals(arg1)) {
+            Player target = Bukkit.getPlayer(arg2);
+            if(target != null) {
+                arena.unregisterPlayer(target);
+                Location loc = arena.getActivePlayers().remove(target);
+                if(loc != null) {
+                    target.teleport(loc);
+                }
+                player.sendMessage(ChatColor.GRAY + "Kicked player " + target.getName());
+                target.sendMessage(ChatColor.RED + "You were kicked from current instant battle!");
+            }
+        }
+
+        if("ban".equals(arg1)) {
+            Player target = Bukkit.getPlayer(arg2);
+            if(target != null) {
+                arena.addBlockedPlayer(arg2, "Banned by admin/mod: " + player.getName());
+                arena.unregisterPlayer(target);
+                Location loc = arena.getActivePlayers().remove(target);
+                if(loc != null) {
+                    target.teleport(loc);
+                }
+                player.sendMessage(ChatColor.GRAY + "Blocked player " + target.getName());
+                target.sendMessage(ChatColor.RED + "You are blocked now for any further instant battles!");
+                Bukkit.getServer().broadcastMessage(ChatColor.RED + "Player '" + target.getName() + "' was blocked for any further instant battle by administrator.");
+            }
+        }
+
+        if("addspawn".equals(arg1)) {
+            arena.addSpawn(player.getLocation());
+        }
+
+        if("clearspawn".equals(arg1)) {
+            arena.getSpanws().clear();
+        }
+
         player.sendMessage(ChatColor.YELLOW + name + " command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " player " + player.getName());
+    }
+
+    private void startArena(String arg2) {
+        arena.setTime(Integer.parseInt(arg2));
+        arenaTask = new ArenaTask(arena);
+        int timeInMillis = (1 + arena.getTime()) * 60 * 1000;
+        timer.schedule(arenaTask, 0, timeInMillis);
+        new ArenaListener(arenaTask);
     }
 
     public void disable() throws IOException {
         if(arenaTask != null) {
-            arenaTask.stop();
             arenaTask.cancel();
         }
 

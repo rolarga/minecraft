@@ -20,7 +20,8 @@ public class AllMessageTask extends TimerTask {
     public void run() {
         // replacements
         List<Player> players = arena.getPos1().getWorld().getPlayers();
-        message = message.replace("%players%", arena.getRegisteredPlayers().size() + "");
+        message = message.replace("%registered_players%", arena.getRegisteredPlayers().size() + "");
+        message = message.replace("%active_players%", arena.getRegisteredPlayers().size() + "");
         for (Player player : players) {
             player.sendMessage(message);
         }

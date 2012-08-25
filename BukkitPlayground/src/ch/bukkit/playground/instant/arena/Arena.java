@@ -19,11 +19,14 @@ public class Arena {
 
     private HashMap<String, Player> registeredPlayers = new HashMap<String, Player>();
     private HashMap<Player, Location> activePlayers = new HashMap<Player, Location>();
-    private Set<String> blockedPlayers = new HashSet<String>();
+    private Map<String, String> blockedPlayers = new HashMap<String, String>();
     private Set<String> vipPlayers = new HashSet<String>();
     private List<Entity> spawnedMobs = new LinkedList<Entity>();
+    private HashMap<Player, Location> spectators = new HashMap<Player, Location>();
+    private Set<Reward> rewards = new HashSet<Reward>();
 
     private static Logger logger = Logger.getLogger("Arena");
+    private List<Location> spanws = new LinkedList<Location>();
 
     public Arena() {
     }
@@ -38,7 +41,7 @@ public class Arena {
         this.posSpectator = arena.posSpectator;
         this.registeredPlayers = new HashMap<String, Player>(arena.registeredPlayers);
         this.activePlayers = new HashMap<Player, Location>(arena.activePlayers);
-        this.blockedPlayers = new HashSet<String>(arena.blockedPlayers);
+        this.blockedPlayers = new HashMap<String, String>(blockedPlayers);
         this.vipPlayers = new HashSet<String>(arena.vipPlayers);
         this.spawnedMobs = new LinkedList<Entity>(arena.spawnedMobs);
     }
@@ -103,24 +106,32 @@ public class Arena {
         return registeredPlayers;
     }
 
-    public Set<String> getBlockedPlayers() {
+    public Map<String, String> getBlockedPlayers() {
         return blockedPlayers;
     }
 
-    public void addBlockedPlayer(String blockedPlayer) {
-        blockedPlayers.add(blockedPlayer);
+    public void addBlockedPlayer(String blockedPlayer, String reason) {
+        blockedPlayers.put(blockedPlayer, reason);
     }
 
     public Set<String> getVipPlayers() {
-        return blockedPlayers;
+        return vipPlayers;
     }
 
     public void addVipPlayer(String vipPlayer) {
-        blockedPlayers.add(vipPlayer);
+        vipPlayers.add(vipPlayer);
+    }
+
+    public HashMap<Player, Location> getSpectators() {
+        return spectators;
+    }
+
+    public void addSpecator(Player player, Location loc) {
+        spectators.put(player, loc);
     }
 
     public boolean addRegisteredPlayer(Player player) {
-        if(blockedPlayers.contains(player.getName())) {
+        if(blockedPlayers.containsKey(player.getName())) {
             return false;
         }
         registeredPlayers.put(player.getName(), player);
@@ -155,12 +166,16 @@ public class Arena {
         this.activePlayers = activePlayers;
     }
 
-    public void setBlockedPlayers(Set<String> blockedPlayers) {
+    public void setBlockedPlayers(Map<String, String> blockedPlayers) {
         this.blockedPlayers = blockedPlayers;
     }
 
     public void setVipPlayers(Set<String> vipPlayers) {
         this.vipPlayers = vipPlayers;
+    }
+
+    public void setSpectators(HashMap<Player, Location> spectators) {
+        this.spectators = spectators;
     }
 
     public boolean isInArena(Location loc) {
@@ -178,4 +193,15 @@ public class Arena {
                 playerZ < arenaLeft || playerZ > arenaRight);
     }
 
+    public void addSpawn(Location location) {
+        spanws.add(location);
+    }
+
+    public List<Location> getSpanws() {
+        return spanws;
+    }
+
+    public void setSpanws(List<Location> spanws) {
+        this.spanws = spanws;
+    }
 }

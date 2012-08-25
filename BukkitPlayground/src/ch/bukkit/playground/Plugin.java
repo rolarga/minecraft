@@ -79,6 +79,12 @@ public class Plugin extends JavaPlugin {
                 instantHandler.unregisterPlayer(player);
             } else if(cmd.getName().equalsIgnoreCase("instant")) {
                 player.sendMessage("/instant join|leave");
+            } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "specjoin")){
+                instantHandler.specJoin(player);
+            } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "specleave")){
+                instantHandler.specLeave(player);
+            } else if(cmd.getName().equalsIgnoreCase("instant")) {
+                player.sendMessage("/instant join|leave|specjoin|specleave");
             } else if(isOP && cmd.getName().equalsIgnoreCase("instantop") && args != null && args.length > 1 ){
                 String name = args[0];
                 String arg1 = args[1];
@@ -86,7 +92,7 @@ public class Plugin extends JavaPlugin {
 
                 instantHandler.handleArena(name, arg1, arg2, player);
             } else if(isOP && cmd.getName().equalsIgnoreCase("instantop")) {
-                player.sendMessage("/instantop pos1|pos2|posstart|posspec|starttime|stat|restart|forcestop");
+                player.sendMessage("/instantop pos1|pos2|posstart|posspec|starttime|stat|restart|forcestop|kick|ban|addspawn|clearspawn");
             }
         }
         return false;

@@ -1,6 +1,7 @@
 package ch.bukkit.playground.instant.tasks;
 
 import ch.bukkit.playground.instant.arena.Arena;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 import java.util.TimerTask;
@@ -20,7 +21,12 @@ public class SpawnTask extends TimerTask {
     @Override
     public void run() {
         for(int i = 0; i < amount; i++) {
-            Entity e = arena.getPos1().getWorld().spawn(arena.getPosStart(), entity);
+            int rnd = ((int) (Math.random() * 1000)) % arena.getSpanws().size();
+            Location loc = arena.getSpanws().get(rnd);
+            if(loc == null) {
+                loc = arena.getPosStart();
+            }
+            Entity e = arena.getPos1().getWorld().spawn(loc, entity);
             arena.addSpawnedMob(e);
         }
 

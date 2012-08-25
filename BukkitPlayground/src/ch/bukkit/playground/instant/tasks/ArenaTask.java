@@ -24,7 +24,7 @@ public class ArenaTask extends TimerTask {
 
     @Override
     public void run() {
-        if(arena.getEndDate() != null && new Date().getTime() < (arena.getEndDate().getTime() + 300000)) {
+        if (arena.getEndDate() != null && new Date().getTime() < (arena.getEndDate().getTime() + 300000)) {
             logger.info("Cannot yet start an instant battle.");
             return;
         }
@@ -37,9 +37,9 @@ public class ArenaTask extends TimerTask {
 
         Bukkit.getServer().broadcastMessage(ChatColor.BLUE + "A new instant battle is open for registration. Press /instant join " + arena.getName() + " to join the next battle. Next round at " + DateFormatter.format(t));
 
-        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tMinus5);
-        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tMinus1);
-        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts now with %players% players!"), t);
+        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts in 5 minutes, %registered_players% players are registerd - Join now!"), tMinus5);
+        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts in 1 minutes, %registered_players% players are registerd - Join now!."), tMinus1);
+        tasks.put(new AllMessageTask(arena, ChatColor.YELLOW + "A new instant battle starts now with %active_players% players!"), t);
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -49,13 +49,13 @@ public class ArenaTask extends TimerTask {
 
                 // move online players
                 for (Player player : arena.getRegisteredPlayers().values()) {
-                    if(player.isOnline()) {
+                    if (player.isOnline()) {
                         Location loc = player.getLocation();
                         player.teleport(arena.getPosStart());
                         arena.addActivePlayer(player, loc);
 
                         // make player ready for the fight
-                        if(!player.isOp()) {
+                        if (!player.isOp()) {
                             player.setFlying(false);
                             player.setAllowFlight(false);
                             player.setGameMode(GameMode.SURVIVAL);
@@ -69,12 +69,13 @@ public class ArenaTask extends TimerTask {
                 arena.getRegisteredPlayers().clear();
             }
         };
+        // make sure it appears after the message is sent
         tasks.put(timerTask, t);
         tasks.put(new MessageTask(arena.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!"), t);
 
         int timeshift = 0;
-        for(int i = 1; i <= 21; i++) {
-            if(i <= 10) {
+        for (int i = 1; i <= 21; i++) {
+            if (i <= 10) {
                 timeshift += 60000;
 
                 Date time = new Date(t.getTime() + timeshift);
@@ -83,7 +84,7 @@ public class ArenaTask extends TimerTask {
                 tasks.put(new SpawnTask(arena, Spider.class, i), time);
 
                 tasks.put(new MessageTask(arena.getActivePlayers().keySet(), ChatColor.YELLOW + "You got 1 minute to kill all mobs and get ready for the next wave - have fun!"), time);
-            } else if(i <= 20) {
+            } else if (i <= 20) {
                 timeshift += 120000;
 
                 Date time = new Date(t.getTime() + timeshift);
@@ -104,70 +105,97 @@ public class ArenaTask extends TimerTask {
             }
         }
 
-        // cleanup at the end
-        timerTask = new TimerTask() {
+        TimerTask timerEndTask = new TimerTask() {
             @Override
             public void run() {
-                boolean allMobsDead = true;
-
-                for (Entity entity : arena.getSpawnedMobs()) {
-                    if(!entity.isDead()) {
-                        allMobsDead = false;
-                    }
-                }
-
-                // we found a mob which is not dead, so the players didnt win the battle
-                if(allMobsDead) {
-                    for (Player player : arena.getActivePlayers().keySet()) {
-                        if(!player.isDead()) {
-                            player.sendMessage(ChatColor.GOLD + "You are one of the winners, congratulations!");
-                        }
-                    }
-                }
-
-                // teleport them back
-                ClearActivePlayersAndTeleportBack();
-
-                // clear arena
-                for (Entity entity : arena.getPos1().getWorld().getEntities()) {
-                    if((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) && arena.isInArena(entity.getLocation())) {
-                        entity.remove();
-                    }
-                }
+                cleanup();
             }
         };
-        tasks.put(timerTask, arena.getEndDate());
+        // cleanup at the end
+        tasks.put(timerEndTask, arena.getEndDate());
 
         for (Map.Entry<TimerTask, Date> timerTaskDateEntry : tasks.entrySet()) {
             arenaTimer.schedule(timerTaskDateEntry.getKey(), timerTaskDateEntry.getValue());
         }
     }
 
-    public void stop() {
+    @Override
+    public boolean cancel() {
         arenaTimer.cancel();
-        for (TimerTask timerTask : tasks.keySet()) {
-            timerTask.cancel();
-        }
+        cleanupArena();
+
+        arena.getRegisteredPlayers().clear();
+        clearActivePlayersAndTeleportBack();
+
+        logger.info("Timers are stopped, battle is over.");
+
+        return super.cancel();
+    }
+
+    // distribute rewards
+    // delete spawned mobs
+    // delete dropped items
+    // delete dropped exp
+    public void cleanup() {
+        boolean allMobsDead = true;
+
         for (Entity entity : arena.getSpawnedMobs()) {
-            if(entity.isValid()) {
+            if (entity.isValid() && !entity.isDead()) {
+                allMobsDead = false;
+            }
+        }
+
+        // we found a mob which is not dead, so the players didnt win the battle
+        if (allMobsDead) {
+            for (Player player : arena.getActivePlayers().keySet()) {
+                if (!player.isDead()) {
+                    player.sendMessage(ChatColor.GOLD + "You are one of the winners, congratulations!");
+                } else {
+                    player.sendMessage(ChatColor.GRAY + "Don't try to cheat - LOOSER!");
+                }
+            }
+        }
+
+        // teleport them back
+        clearActivePlayersAndTeleportBack();
+
+        // clear arena
+        for (Entity entity : arena.getPos1().getWorld().getEntities()) {
+            if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) && arena.isInArena(entity.getLocation())) {
                 entity.remove();
             }
         }
 
-        arena.getRegisteredPlayers().clear();
-        arena.setEndDate(new Date());
-
-        ClearActivePlayersAndTeleportBack();
-
-        logger.info("Timers are stopped, battle is over.");
+        cleanupArena();
     }
 
-    private void ClearActivePlayersAndTeleportBack() {
+    private void cleanupArena() {
+        for (TimerTask timerTask : tasks.keySet()) {
+            timerTask.cancel();
+        }
+
+        for (Entity entity : arena.getSpawnedMobs()) {
+            if (entity.isValid()) {
+                entity.remove();
+            }
+        }
+        arena.setEndDate(null);
+    }
+
+    public void clearActivePlayersAndTeleportBack() {
+        // add active and spectators to be ported back
         Map<Player, Location> playerLocationMap = new HashMap<Player, Location>(arena.getActivePlayers());
+        playerLocationMap.putAll(arena.getSpectators());
+
         arena.getActivePlayers().clear();
+        arena.getSpectators().clear();
 
         for (Map.Entry<Player, Location> playerLocationEntry : playerLocationMap.entrySet()) {
             playerLocationEntry.getKey().teleport(playerLocationEntry.getValue());
         }
+    }
+
+    public Arena getArena() {
+        return arena;
     }
 }

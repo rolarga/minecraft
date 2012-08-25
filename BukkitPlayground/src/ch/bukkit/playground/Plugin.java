@@ -28,9 +28,14 @@ public class Plugin extends JavaPlugin {
 
         InitializeLibraries();
         InitializeDataStructure();
+        Tests();
 
         instantHandler = new InstantHandler();
 
+
+    }
+
+    private void Tests() {
 
     }
 

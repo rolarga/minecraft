@@ -7,11 +7,13 @@ import org.bukkit.entity.*;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 public class ArenaTask extends TimerTask {
 
     private Arena arena;
     private Timer arenaTimer = new Timer();
+    private static Logger logger = Logger.getLogger("ArenaTask");
 
     public ArenaTask(Arena arena) {
         this.arena = arena;
@@ -20,9 +22,11 @@ public class ArenaTask extends TimerTask {
     @Override
     public void run() {
         if(new Date().getTime() < (arena.getEndDate().getTime() + 300000)) {
+            logger.info("Cannot yet start an instant battle.");
             return;
         }
 
+        logger.info("Starting instant battle.");
         Bukkit.getServer().broadcastMessage("A new instant battle is open for registration. Press /instant join " + arena.getName() + " to join the next battle. Next round at " + arena.getTimeString());
 
         Date tMinus5 = new Date(System.currentTimeMillis() + (arena.getTime() - 5) * 60 * 1000);

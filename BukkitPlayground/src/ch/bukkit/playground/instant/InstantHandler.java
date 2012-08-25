@@ -3,8 +3,11 @@ package ch.bukkit.playground.instant;
 import ch.bukkit.playground.instant.arena.Arena;
 import ch.bukkit.playground.instant.listener.ArenaListener;
 import ch.bukkit.playground.instant.tasks.ArenaTask;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Timer;
 
@@ -16,6 +19,9 @@ public class InstantHandler {
 
     public InstantHandler() {
         new ArenaListener(arena);
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(new File("./plugins/BukkitPlayground/arenas.yml"));
+        config.get("arenas", Arena.class);
     }
 
     public void registerPlayer(Player player) {
@@ -52,6 +58,6 @@ public class InstantHandler {
             arenaTask.stop();
         }
 
-        System.out.println("Arena " + name + " got command: " + arg1 + " with argument " + arg2 + " from player " + player.getName());
+        player.sendMessage("Arena " + name + " got command: " + arg1 + " with argument " + arg2 + " from player " + player.getName());
     }
 }

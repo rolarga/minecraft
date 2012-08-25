@@ -72,7 +72,7 @@ public class ArenaListener implements Listener {
 
         if(death.getEntity() instanceof Player) {
             Player player = (Player) death.getEntity();
-            player.getWorld().strikeLightning(player.getLocation());
+            player.getWorld().strikeLightningEffect(player.getLocation());
 
             // vip players will not loose any items
             if(arena.getActivePlayers().containsKey(player)) {

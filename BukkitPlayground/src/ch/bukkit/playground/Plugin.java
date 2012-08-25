@@ -77,12 +77,16 @@ public class Plugin extends JavaPlugin {
                 instantHandler.registerPlayer(player);
             } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "leave")){
                 instantHandler.unregisterPlayer(player);
+            } else if(cmd.getName().equalsIgnoreCase("instant")) {
+                player.sendMessage("/instant join|leave");
             } else if(isOP && cmd.getName().equalsIgnoreCase("instantop") && args != null && args.length > 1 ){
                 String name = args[0];
                 String arg1 = args[1];
                 String arg2 = args.length > 2 ? args[2] : null;
 
                 instantHandler.handleArena(name, arg1, arg2, player);
+            } else if(isOP && cmd.getName().equalsIgnoreCase("instantop")) {
+                player.sendMessage("/instantop pos1|pos2|posstart|posspec|starttime|stat|restart|forcestop");
             }
         }
         return false;
@@ -90,6 +94,13 @@ public class Plugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(instantHandler != null) {
+            try {
+                instantHandler.disable();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         logger.info("Playground Plugin disabled!");
     }
 }

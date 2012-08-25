@@ -25,7 +25,6 @@ public class MessageTask extends TimerTask {
     public void run() {
         // replacements
         message = message.replace("%players%", players.size() + "");
-
         for (Player player : players) {
             player.sendMessage(message);
         }

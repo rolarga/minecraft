@@ -4,7 +4,7 @@ main: ch.bukkit.playground.Plugin
 commands:
   instantop:
     description: instant battle op commands
-    usage: /instantop
+    usage:
   instant:
     description: instant battle register/unregister
-    usage: /instant join|leave
+    usage:

@@ -1,21 +1,19 @@
 package ch.bukkit.playground.instant.arena;
 
-import ch.bukkit.playground.util.DateFormatter;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Arena {
 
     private Location pos1;
     private Location pos2;
-    private int height;
     private String name;
     private int time;
     private Location posStart;
-    private Date date;
     private Date endDate;
     private Location posSpectator;
 
@@ -25,17 +23,17 @@ public class Arena {
     private Set<String> vipPlayers = new HashSet<String>();
     private List<Entity> spawnedMobs = new LinkedList<Entity>();
 
+    private static Logger logger = Logger.getLogger("Arena");
+
     public Arena() {
     }
 
     public Arena(Arena arena) {
         this.pos1 = arena.pos1;
         this.pos2 = arena.pos2;
-        this.height = arena.height;
         this.name = arena.name;
         this.time = arena.time;
         this.posStart = arena.posStart;
-        this.date = arena.date;
         this.endDate = arena.endDate;
         this.posSpectator = arena.posSpectator;
         this.registeredPlayers = new HashMap<String, Player>(arena.registeredPlayers);
@@ -59,14 +57,6 @@ public class Arena {
 
     public void setPos2(Location pos2) {
         this.pos2 = pos2;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
     }
 
     public String getName() {
@@ -93,14 +83,6 @@ public class Arena {
         this.posStart = posStart;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
     public Date getEndDate() {
         return endDate;
     }
@@ -115,10 +97,6 @@ public class Arena {
 
     public void setPosSpectator(Location posSpectator) {
         this.posSpectator = posSpectator;
-    }
-
-    public String getTimeString() {
-        return DateFormatter.format(date);
     }
 
     public HashMap<String, Player> getRegisteredPlayers() {
@@ -161,8 +139,8 @@ public class Arena {
         return spawnedMobs;
     }
 
-    public void addActivePlayer(Player player) {
-        activePlayers.put(player, player.getLocation());
+    public void addActivePlayer(Player player, Location loc) {
+        activePlayers.put(player, loc);
     }
 
     public HashMap<Player, Location> getActivePlayers() {
@@ -184,4 +162,20 @@ public class Arena {
     public void setVipPlayers(Set<String> vipPlayers) {
         this.vipPlayers = vipPlayers;
     }
+
+    public boolean isInArena(Location loc) {
+        double arenaBottom = Math.min(getPos1().getX(), getPos2().getX());
+        double arenaTop = Math.max(getPos1().getX(), getPos2().getX());
+        double arenaLeft = Math.min(getPos1().getZ(), getPos2().getZ());
+        double arenaRight = Math.max(getPos1().getZ(), getPos2().getZ());
+        double playerX = loc.getX();
+        double playerZ = loc.getZ();
+
+        logger.info("Move event of player catched X: " + playerX + " Z: " + playerZ);
+
+        // return true if the player is in the arena by that movement
+        return !(playerX < arenaBottom || playerX > arenaTop ||
+                playerZ < arenaLeft || playerZ > arenaRight);
+    }
+
 }

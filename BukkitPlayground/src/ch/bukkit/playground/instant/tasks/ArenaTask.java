@@ -30,9 +30,9 @@ public class ArenaTask extends TimerTask {
         Date t = new Date(System.currentTimeMillis() + (arena.getTime()) * 60 * 1000);
         Date tEnd = new Date(System.currentTimeMillis() + (arena.getTime() + 36) * 60 * 1000);
 
-        arenaTimer.schedule(new MessageTask(arena.getWorld().getPlayers(), "A new instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tMinus5);
-        arenaTimer.schedule(new MessageTask(arena.getWorld().getPlayers(), "A new instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tMinus1);
-        arenaTimer.schedule(new MessageTask(arena.getWorld().getPlayers(), "A new instant battle starts now with %players% players!"), t);
+        arenaTimer.schedule(new MessageTask(arena.getPos1().getWorld().getPlayers(), "A new instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tMinus5);
+        arenaTimer.schedule(new MessageTask(arena.getPos1().getWorld().getPlayers(), "A new instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tMinus1);
+        arenaTimer.schedule(new MessageTask(arena.getPos1().getWorld().getPlayers(), "A new instant battle starts now with %players% players!"), t);
 
         TimerTask timerTask = new TimerTask() {
             @Override

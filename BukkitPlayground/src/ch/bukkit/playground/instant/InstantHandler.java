@@ -42,7 +42,6 @@ public class InstantHandler {
         if("height".equals(arg1)) arena.setHeight(Integer.parseInt(arg2));
 
         if("starttimer".equals(arg1)) {
-            arena.setWorld(player.getWorld());
             arena.setTime(Integer.parseInt(arg2));
             arena.setDate(new Date(System.currentTimeMillis() + Integer.parseInt(arg2)));
             arenaTask = new ArenaTask(arena);

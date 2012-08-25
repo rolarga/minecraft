@@ -2,7 +2,6 @@ package ch.bukkit.playground.instant.arena;
 
 import ch.bukkit.playground.util.DateFormatter;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -17,7 +16,6 @@ public class Arena {
     private int time;
     private Location posStart;
     private Date date;
-    private World world;
     private Date endDate;
     private Location posSpectator;
 
@@ -38,7 +36,6 @@ public class Arena {
         this.time = arena.time;
         this.posStart = arena.posStart;
         this.date = arena.date;
-        this.world = arena.world;
         this.endDate = arena.endDate;
         this.posSpectator = arena.posSpectator;
         this.registeredPlayers = new HashMap<String, Player>(arena.registeredPlayers);
@@ -102,14 +99,6 @@ public class Arena {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
-    public void setWorld(World world) {
-        this.world = world;
     }
 
     public Date getEndDate() {
@@ -178,5 +167,21 @@ public class Arena {
 
     public HashMap<Player, Location> getActivePlayers() {
         return activePlayers;
+    }
+
+    public void setRegisteredPlayers(HashMap<String, Player> registeredPlayers) {
+        this.registeredPlayers = registeredPlayers;
+    }
+
+    public void setActivePlayers(HashMap<Player, Location> activePlayers) {
+        this.activePlayers = activePlayers;
+    }
+
+    public void setBlockedPlayers(Set<String> blockedPlayers) {
+        this.blockedPlayers = blockedPlayers;
+    }
+
+    public void setVipPlayers(Set<String> vipPlayers) {
+        this.vipPlayers = vipPlayers;
     }
 }

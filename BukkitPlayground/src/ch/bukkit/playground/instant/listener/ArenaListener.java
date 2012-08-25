@@ -2,7 +2,6 @@ package ch.bukkit.playground.instant.listener;
 
 import ch.bukkit.playground.Plugin;
 import ch.bukkit.playground.instant.arena.Arena;
-import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -14,9 +13,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 public class ArenaListener implements Listener {
@@ -34,6 +31,8 @@ public class ArenaListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void playerRespawn(PlayerRespawnEvent respawnEvent) {
         if(arena.getActivePlayers().containsKey(respawnEvent.getPlayer())) {
+            arena.getActivePlayers().remove(respawnEvent.getPlayer());
+            logger.info("Flight event triggered by player: " + respawnEvent.getPlayer().getName());
             if(arena.getPosSpectator() != null) {
                 // bring player to spectator lounge
                 respawnEvent.setRespawnLocation(arena.getPosSpectator());
@@ -48,6 +47,7 @@ public class ArenaListener implements Listener {
     public void playerMove(PlayerMoveEvent move) {
         // players are not supposed to move out the arena
         if(!move.isCancelled() && arena.getActivePlayers().containsKey(move.getPlayer())) {
+            logger.info("Active Player '" + move.getPlayer().getName() + "' moves.");
             move.setCancelled(isPlayerInArena(move.getTo()));
         }
     }
@@ -62,9 +62,10 @@ public class ArenaListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void playerTeleport(PlayerToggleFlightEvent flight) {
+    public void playerFlight(PlayerToggleFlightEvent flight) {
         // active players are not allowed to fly
-        if(arena.getActivePlayers().containsKey(flight.getPlayer())) {
+        if(arena.getActivePlayers().containsKey(flight.getPlayer()) && !flight.getPlayer().isOp()) {
+            logger.info("Flight event triggered by player: " + flight.getPlayer().getName());
             flight.setCancelled(true);
         }
     }
@@ -74,13 +75,11 @@ public class ArenaListener implements Listener {
         // vip players will not loose any items
         if(death.getEntity() instanceof Player) {
             Player player = (Player) death.getEntity();
-            if(arena.getActivePlayers().containsKey(player) && arena.getVipPlayers().contains(player.getName())) {
+            if(arena.getActivePlayers().containsKey(player)) {
+                death.getDrops().clear();
                 death.setDroppedExp(0);
-                List<ItemStack> items = death.getDrops();
-                if(CollectionUtils.isNotEmpty(items)) {
-                    player.getInventory().addItem(items.toArray(new ItemStack[items.size()]));
-                }
             }
+            arena.getActivePlayers().remove(player);
         }
     }
 
@@ -96,6 +95,8 @@ public class ArenaListener implements Listener {
         double playerX = to.getX();
         double playerY = to.getY();
         double playerZ = to.getZ();
+
+        logger.info("Move event of player catched X: " + playerX + " Y: " + playerY + " Z: " + playerZ);
 
         // return true if the player would go out of the arena by that movement
         return playerX < arenaBottom || playerX > arenaTop ||

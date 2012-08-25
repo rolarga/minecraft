@@ -20,7 +20,7 @@ public class SpawnTask extends TimerTask {
     @Override
     public void run() {
         for(int i = 0; i < amount; i++) {
-            Entity e = arena.getWorld().spawn(arena.getPosStart(), entity);
+            Entity e = arena.getPos1().getWorld().spawn(arena.getPosStart(), entity);
             arena.addSpawnedMob(e);
         }
 

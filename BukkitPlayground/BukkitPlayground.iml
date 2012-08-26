@@ -9,7 +9,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="craftbukkit" level="project" />
-    <orderEntry type="library" exported="" name="apache" level="project" />
+    <orderEntry type="library" exported="" name="external" level="project" />
   </component>
 </module>
 

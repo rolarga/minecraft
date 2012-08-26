@@ -1,6 +1,7 @@
 package ch.bukkit.playground.instant.tasks;
 
 import ch.bukkit.playground.instant.arena.Arena;
+import ch.bukkit.playground.instant.config.InstantConfigHandler;
 import ch.bukkit.playground.util.DateFormatter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -67,6 +68,7 @@ public class ArenaTask extends TimerTask {
                     }
                 }
                 arena.getRegisteredPlayers().clear();
+                InstantConfigHandler.saveArena(arena);
             }
         };
         // make sure it appears after the message is sent
@@ -117,6 +119,7 @@ public class ArenaTask extends TimerTask {
         for (Map.Entry<TimerTask, Date> timerTaskDateEntry : tasks.entrySet()) {
             arenaTimer.schedule(timerTaskDateEntry.getKey(), timerTaskDateEntry.getValue());
         }
+        InstantConfigHandler.saveArena(arena);
     }
 
     @Override
@@ -128,6 +131,8 @@ public class ArenaTask extends TimerTask {
         clearActivePlayersAndTeleportBack();
 
         logger.info("Timers are stopped, battle is over.");
+
+        InstantConfigHandler.saveArena(arena);
 
         return super.cancel();
     }
@@ -167,6 +172,8 @@ public class ArenaTask extends TimerTask {
         }
 
         cleanupArena();
+
+        InstantConfigHandler.saveArena(arena);
     }
 
     private void cleanupArena() {

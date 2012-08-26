@@ -23,29 +23,40 @@ public class ArenaListener implements Listener {
     private Arena arena;
 
 
-    public ArenaListener(ArenaTask arenaTask) {
+    public ArenaListener() {
+        Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
+    }
+
+    public void initialize(ArenaTask arenaTask) {
         this.arenaTask = arenaTask;
         this.arena = arenaTask.getArena();
-
-        Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerRespawn(PlayerRespawnEvent respawnEvent) {
         if (arena.getActivePlayers().containsKey(respawnEvent.getPlayer())) {
             Location loc = arena.getActivePlayers().remove(respawnEvent.getPlayer());
+
             if (arena.getPosSpectator() != null) {
+                if(Plugin.DEBUG) logger.info("Player " + respawnEvent.getPlayer().getName() + " respawns at spectator.");
+
                 // bring player to spectator lounge
                 respawnEvent.setRespawnLocation(arena.getPosSpectator());
                 arena.addSpecator(respawnEvent.getPlayer(), loc);
             } else {
+                if(Plugin.DEBUG) logger.info("Player " + respawnEvent.getPlayer().getName() + " respawns at origin.");
+
                 // default points to origin location of this player
                 respawnEvent.setRespawnLocation(loc);
             }
 
             if (MapUtils.isEmpty(arena.getActivePlayers())) {
+                if(Plugin.DEBUG) logger.info("Player " + respawnEvent.getPlayer().getName() + " was last one in battle.");
+
                 arenaTask.cleanup();
             } else {
+                if(Plugin.DEBUG) logger.info("Player " + respawnEvent.getPlayer().getName() + " died.");
+
                 MessageTask messageTask = new MessageTask(arena.getActivePlayers().keySet(), respawnEvent.getPlayer().getName() + " died!");
                 messageTask.run();
             }

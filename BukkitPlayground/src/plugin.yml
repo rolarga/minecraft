@@ -8,3 +8,6 @@ commands:
   instant:
     description: instant battle register/unregister
     usage:
+  instantdebug:
+    description: instant battle debug enabling
+    usage:

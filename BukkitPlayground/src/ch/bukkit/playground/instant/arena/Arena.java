@@ -158,25 +158,19 @@ public class Arena {
         return activePlayers;
     }
 
-    public void setRegisteredPlayers(HashMap<String, Player> registeredPlayers) {
-        this.registeredPlayers = registeredPlayers;
+    public void addSpawn(Location location) {
+        spanws.add(location);
     }
 
-    public void setActivePlayers(HashMap<Player, Location> activePlayers) {
-        this.activePlayers = activePlayers;
+    public List<Location> getSpanws() {
+        return spanws;
     }
 
-    public void setBlockedPlayers(Map<String, String> blockedPlayers) {
-        this.blockedPlayers = blockedPlayers;
+    public void setSpanws(List<Location> spanws) {
+        this.spanws = spanws;
     }
 
-    public void setVipPlayers(Set<String> vipPlayers) {
-        this.vipPlayers = vipPlayers;
-    }
-
-    public void setSpectators(HashMap<Player, Location> spectators) {
-        this.spectators = spectators;
-    }
+    // Helper methods
 
     public boolean isInArena(Location loc) {
         double arenaBottom = Math.min(getPos1().getX(), getPos2().getX());
@@ -193,15 +187,24 @@ public class Arena {
                 playerZ < arenaLeft || playerZ > arenaRight);
     }
 
-    public void addSpawn(Location location) {
-        spanws.add(location);
-    }
-
-    public List<Location> getSpanws() {
-        return spanws;
-    }
-
-    public void setSpanws(List<Location> spanws) {
-        this.spanws = spanws;
+    @Override
+    public String toString() {
+        return "Arena{" +
+                "pos1=" + pos1 +
+                ", pos2=" + pos2 +
+                ", name='" + name + '\'' +
+                ", time=" + time +
+                ", posStart=" + posStart +
+                ", endDate=" + endDate +
+                ", posSpectator=" + posSpectator +
+                ", registeredPlayers=" + registeredPlayers +
+                ", activePlayers=" + activePlayers +
+                ", blockedPlayers=" + blockedPlayers +
+                ", vipPlayers=" + vipPlayers +
+                ", spawnedMobs=" + spawnedMobs +
+                ", spectators=" + spectators +
+                ", rewards=" + rewards +
+                ", spanws=" + spanws +
+                '}';
     }
 }

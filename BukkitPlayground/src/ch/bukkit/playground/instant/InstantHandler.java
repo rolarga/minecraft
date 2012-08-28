@@ -1,121 +1,163 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.instant.arena.Arena;
-import ch.bukkit.playground.instant.config.InstantConfigHandler;
-import ch.bukkit.playground.instant.listener.ArenaListener;
-import ch.bukkit.playground.instant.tasks.ArenaTask;
-import ch.bukkit.playground.util.DateFormatter;
+import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.instant.eventhandlers.PlayerEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.PlayerRespawnEventHandler;
+import ch.bukkit.playground.instant.model.ArenaConfiguration;
+import ch.bukkit.playground.instant.model.ArenaData;
+import ch.bukkit.playground.instant.tasks.ArenaHandlerTask;
+import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.Msg;
 import com.mysql.jdbc.StringUtils;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.logging.Logger;
 
 public class InstantHandler {
 
-    Arena arena = new Arena();
-    Timer timer = new Timer("arenas");
     private static Logger logger = Logger.getLogger("InstantHandler");
-    ArenaTask arenaTask;
-    ArenaListener arenaListener = new ArenaListener();
+
+    Timer timer = new Timer("arenas");
+    HashMap<String, ArenaHandlerTask> arenaHandlerTasks;
+    InstantListener instantListener = new InstantListener();
+    Map<Class<? extends PlayerEvent>, PlayerEventHandler> playerEventHandlers = new HashMap<Class<? extends PlayerEvent>, PlayerEventHandler>();
 
     public InstantHandler() {
-        List<Arena> arenas = InstantConfigHandler.loadAllArenas();
-        if(CollectionUtils.isNotEmpty(arenas)) {
-            arena = arenas.get(0);
+        // Load arena handlers
+        arenaHandlerTasks = InstantConfig.loadAllArenaHandlerTasks();
+
+
+        // Initialize event handlers
+        playerEventHandlers.put(PlayerRespawnEvent.class, new PlayerRespawnEventHandler());
+
+        for (Map.Entry<Class<? extends PlayerEvent>, PlayerEventHandler> classPlayerEventHandlerEntry : playerEventHandlers.entrySet()) {
+            Bukkit.getServer().getPluginManager().registerEvents(classPlayerEventHandlerEntry.getValue(), Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
         }
     }
 
-    public void registerPlayer(Player player) {
-        if(arena.addRegisteredPlayer(player)) {
-            player.sendMessage(ChatColor.GREEN + "You joined the instant.");
-        } else {
-            player.sendMessage(ChatColor.RED + "You are blocked for this action.");
+    public void handlePlayerCommands(String name, String arg1, Player player) {
+        if("list".equals(arg1)) {
+            Msg.sendMsg(player, ChatColor.YELLOW + "Available Arenas: " + getArenaNames());
+            return;
         }
-    }
 
-    public void unregisterPlayer(Player player) {
-        if(arena.unregisterPlayer(player) != null) {
-            player.sendMessage(ChatColor.GREEN + "You leaved the instant.");
-        } else {
-            player.sendMessage(ChatColor.RED + "You were not registered.");
+        ArenaHandlerTask arenaHandlerTask = arenaHandlerTasks.get(name);
+
+        if(arenaHandlerTask == null) {
+            String arenaNames = getArenaNames();
+            Msg.sendMsg(player, ChatColor.RED + "Arena was not found. Available arenas are: " + arenaNames);
+            return;
         }
-    }
 
-    public void specJoin(Player player) {
-        arena.addSpecator(player, player.getLocation());
-        player.teleport(arena.getPosSpectator());
-        player.sendMessage(ChatColor.GREEN + "You joined the spectator lounge.");
-    }
-
-    public void specLeave(Player player) {
-        Location loc = arena.getSpectators().remove(player);
-        if(loc != null) {
-            player.teleport(arena.getPosSpectator());
-            player.sendMessage(ChatColor.GREEN + "You left the spectator lounge.");
-        } else {
-            player.sendMessage(ChatColor.RED + "You were not a spectator.");
-        }
-    }
-
-    public void handlePlayerCommands(String name, String arg1, String arg2, Player player) {
-        String playerName = player != null ? player.getName() : "CONSOLE";
-        arena.setName(name);
-
-        if(player != null && "pos1".equals(arg1)) {
-            arena.setPos1(player.getLocation());
-            logger.info("Location1: " + player.getLocation().getX() + " " + player.getLocation().getY() + " " + player.getLocation().getZ());
-        }
-        if(player != null &&"pos2".equals(arg1)) {
-            arena.setPos2(player.getLocation());
-            logger.info("Location2: " + player.getLocation().getX() + " " + player.getLocation().getY() + " " + player.getLocation().getZ());
-        }
-        if(player != null &&"posstart".equals(arg1)) arena.setPosStart(player.getLocation());
-        if(player != null &&"posspec".equals(arg1)) arena.setPosSpectator(player.getLocation());
-
-        if("starttimer".equals(arg1)) {
-            if(StringUtils.isNullOrEmpty(arg2)) {
-                Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number when the game should start: '/instantop starttime 6' will start the game in 6 minutes");
+        if("join".equals(arg1)) {
+            if(arenaHandlerTask.getArenaData().addRegisteredPlayer(player)) {
+                Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for arena: " + arenaHandlerTask.getName() + ".");
+            } else {
+                Msg.sendMsg(player, ChatColor.RED + "You are blocked for this action.");
             }
-            startArena(arg2);
+        } else if("leave".equals(arg1)) {
+            if(arenaHandlerTask.getArenaData().unregisterPlayer(player) != null) {
+                Msg.sendMsg(player, ChatColor.GREEN + "You leaved the instant.");
+            } else {
+                Msg.sendMsg(player, ChatColor.RED + "You were not registered.");
+            }
+        } else if("spec".equals(arg1)) {
+            arenaHandlerTask.getArenaData().addSpecator(player, player.getLocation());
+            player.teleport(arenaHandlerTask.getArenaConfiguration().getPosSpectator());
+            Msg.sendMsg(player, ChatColor.GREEN + "You joined the spectator lounge of arena: " + arenaHandlerTask.getName() + ".");
+        } else if("unspec".equals(arg1)) {
+            Location loc = arenaHandlerTask.getArenaData().getOriginSpectatorLocations().remove(player);
+            if(loc != null) {
+                player.teleport(arenaHandlerTask.getArenaConfiguration().getPosSpectator());
+                Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of arena " + arenaHandlerTask.getName() + ".");
+            } else {
+                Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
+            }
+        }
+    }
+
+    private String getArenaNames() {
+        String arenaNames = "";
+        for (String s : arenaHandlerTasks.keySet()) {
+            if(!StringUtils.isNullOrEmpty(arenaNames)) {
+                arenaNames += ", ";
+            }
+            arenaNames += s;
+        }
+        return arenaNames;
+    }
+
+    public void handleOpCommands(String arenaName, String arg1, String arg2, Player player) {
+        String playerName = player != null ? player.getName() : "CONSOLE";
+
+        ArenaHandlerTask arenaHandlerTask = arenaHandlerTasks.get(arenaName);
+        // if the arena doesnt exist, create it
+        if(arenaHandlerTask == null) {
+            arenaHandlerTask = new ArenaHandlerTask(arenaName, new ArenaConfiguration(), new ArenaData());
+            arenaHandlerTasks.put(arenaName, arenaHandlerTask);
         }
 
-        if("forcestop".equals(arg1) && arenaTask != null) {
-            arenaTask.cancel();
+        if(player != null && "pos1".equals(arg1)) arenaHandlerTask.getArenaConfiguration().setPos1(player.getLocation());
+        if(player != null &&"pos2".equals(arg1)) arenaHandlerTask.getArenaConfiguration().setPos2(player.getLocation());
+        if(player != null &&"posstart".equals(arg1)) arenaHandlerTask.getArenaConfiguration().setPosStart(player.getLocation());
+        if(player != null &&"posspec".equals(arg1)) arenaHandlerTask.getArenaConfiguration().setPosSpectator(player.getLocation());
+
+        if("offset".equals(arg1)) {
+            if(StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
+                Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number when the battle notifications should be sent out: '/instantop offset 5' will send first message 5 minutes before the battle starts.");
+            }
+            arenaHandlerTask.getArenaConfiguration().setOffset(Integer.parseInt(arg2));
         }
 
-        if("restart".equals(arg1) && arenaTask != null) {
-            arenaTask.cancel();
-            startArena(arg2);
+        if("duration".equals(arg1)) {
+            if(StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
+                Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number how long the battle should last: '/instantop duration 30' will let the battle be 30 minutes long.");
+            }
+            arenaHandlerTask.getArenaConfiguration().setDuration(Integer.parseInt(arg2));
+        }
+
+        if("stop".equals(arg1)) {
+            arenaHandlerTask.cancel();
+        }
+
+        if("start".equals(arg1)) {
+            // make sure the arena is not already running
+            arenaHandlerTask.cancel();
+            // start the arena
+            timer.schedule(arenaHandlerTask, 0, DateHelper.getMillisForMinutes(arenaHandlerTask.getArenaConfiguration().getCompleteRunDuration()));
+            InstantConfig.saveArenaHandlerTask(arenaHandlerTask);
         }
 
         if("stat".equals(arg1)) {
-            Msg.sendMsg(player, "Name: " + arena.getName());
-            for (String s : arena.getRegisteredPlayers().keySet()) {
-                Msg.sendMsg(player, "Registered Player: " + s);
+            Msg.sendMsg(player, "Name: " + arenaName);
+            for (Player p : arenaHandlerTask.getArenaData().getRegisteredPlayers()) {
+                Msg.sendMsg(player, "Registered Player: " + p.getName());
             }
-            for (Player p : arena.getActivePlayers().keySet()) {
+            for (Player p : arenaHandlerTask.getArenaData().getActivePlayers().keySet()) {
                 Msg.sendMsg(player, "Active Player: " + p.getName());
             }
-            Msg.sendMsg(player, "End Date: " + DateFormatter.format(arena.getEndDate()));
-            if(arena.getEndDate() != null) {
-                Msg.sendMsg(player, "Earliest Next round: " + DateFormatter.format(new Date(arena.getEndDate().getTime() + 300000)));
+            Msg.sendMsg(player, "End Date: " + DateHelper.format(arenaHandlerTask.getArenaConfiguration().getEndDate()));
+            if(arenaHandlerTask.getArenaConfiguration().getEndDate() != null) {
+                Msg.sendMsg(player, "Earliest Next round: " + DateHelper.format(new Date(arenaHandlerTask.getArenaConfiguration().getEndDate().getTime() + 300000)));
             }
         }
 
         if("kick".equals(arg1)) {
             Player target = Bukkit.getPlayer(arg2);
             if(target != null) {
-                arena.unregisterPlayer(target);
-                Location loc = arena.getActivePlayers().remove(target);
+                arenaHandlerTask.getArenaData().unregisterPlayer(target);
+                Location loc = arenaHandlerTask.getArenaData().getActivePlayers().remove(target);
                 if(loc != null) {
                     target.teleport(loc);
                 }
@@ -127,9 +169,9 @@ public class InstantHandler {
         if("ban".equals(arg1)) {
             Player target = Bukkit.getPlayer(arg2);
             if(target != null) {
-                arena.addBlockedPlayer(arg2, "Banned by admin/mod: " + playerName);
-                arena.unregisterPlayer(target);
-                Location loc = arena.getActivePlayers().remove(target);
+                arenaHandlerTask.getArenaData().addBlockedPlayer(arg2, "Banned by admin/mod: " + playerName);
+                arenaHandlerTask.getArenaData().unregisterPlayer(target);
+                Location loc = arenaHandlerTask.getArenaData().getActivePlayers().remove(target);
                 if(loc != null) {
                     target.teleport(loc);
                 }
@@ -140,31 +182,34 @@ public class InstantHandler {
         }
 
         if(player != null &&"addspawn".equals(arg1)) {
-            arena.addSpawn(player.getLocation());
+            arenaHandlerTask.getArenaConfiguration().addSpawn(player.getLocation());
         }
 
         if("clearspawn".equals(arg1)) {
-            arena.getSpanws().clear();
+            arenaHandlerTask.getArenaConfiguration().getSpanws().clear();
         }
 
-        InstantConfigHandler.saveArena(arena);
-        Msg.sendMsg(player, ChatColor.YELLOW + name + " command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " player " + playerName);
+        InstantConfig.saveArenaHandlerTask(arenaHandlerTask);
+        Msg.sendMsg(player, ChatColor.YELLOW + "Arena '" + arenaName + "' command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " by " + playerName);
     }
 
-    private void startArena(String arg2) {
-        arena.setTime(Integer.parseInt(arg2));
-        arenaTask = new ArenaTask(arena);
-        int timeInMillis = (1 + arena.getTime()) * 60 * 1000;
-        timer.schedule(arenaTask, 0, timeInMillis);
-        arenaListener.initialize(arenaTask);
-        InstantConfigHandler.saveArena(arena);
+    public void handlePlayerEvents(PlayerEvent playerEvent) {
+        PlayerEventHandler eventHandler = playerEventHandlers.get(playerEvent.getClass());
+
+        // can handle the event
+        if(eventHandler != null) {
+            for (ArenaHandlerTask arenaHandlerTask : arenaHandlerTasks.values()) {
+                if(arenaHandlerTask.getArenaData().getActivePlayers().containsKey(playerEvent.getPlayer())) {
+                    eventHandler.processEvent(playerEvent, arenaHandlerTask);
+                }
+            }
+        }
     }
 
     public void disable() throws IOException {
-        if(arenaTask != null) {
-            arenaTask.cancel();
+        for (ArenaHandlerTask arenaHandlerTask : arenaHandlerTasks.values()) {
+            arenaHandlerTask.cancel();
+            InstantConfig.saveArenaHandlerTask(arenaHandlerTask);
         }
-
-        InstantConfigHandler.saveArena(arena);
     }
 }

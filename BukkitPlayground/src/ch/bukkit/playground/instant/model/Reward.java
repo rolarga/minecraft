@@ -1,4 +1,4 @@
-package ch.bukkit.playground.instant.arena;
+package ch.bukkit.playground.instant.model;
 
 public class Reward {
 

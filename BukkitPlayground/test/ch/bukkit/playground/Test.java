@@ -1,6 +1,6 @@
 package ch.bukkit.playground;
 
-import ch.bukkit.playground.instant.arena.Arena;
+import ch.bukkit.playground.instant.model.Arena;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
@@ -41,7 +41,7 @@ public class Test {
         Arena arena = new Arena();
         arena.setPosSpectator(new Location(null, 0, 0, 0));
         arena.setEndDate(new Date());
-        arena.setName("arena");
+        arena.setName("model");
         arena.setPos1(new Location(null, 1, 0, 0));
         arena.setPos2(new Location(null, 2, 0, 0));
         arena.setPosStart(new Location(null, 3, 0, 0));

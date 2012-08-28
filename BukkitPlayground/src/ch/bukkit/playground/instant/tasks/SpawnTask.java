@@ -1,6 +1,8 @@
 package ch.bukkit.playground.instant.tasks;
 
-import ch.bukkit.playground.instant.arena.Arena;
+import ch.bukkit.playground.instant.model.ArenaConfiguration;
+import ch.bukkit.playground.instant.model.ArenaData;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
@@ -8,29 +10,32 @@ import java.util.TimerTask;
 
 public class SpawnTask extends TimerTask {
 
-    private Arena arena;
+    private ArenaConfiguration arenaConfiguration;
+    private ArenaData arenaData;
     private Class<? extends Entity> entity;
-    private int amount;
+    private int round;
 
-    public SpawnTask(Arena arena, Class<? extends Entity> entity, int amount) {
-        this.arena = arena;
+    public SpawnTask(ArenaConfiguration arenaConfiguration, ArenaData arenaData, Class<? extends Entity> entity, int round) {
+        this.arenaConfiguration = arenaConfiguration;
+        this.arenaData = arenaData;
         this.entity = entity;
-        this.amount = amount;
+        this.round = round;
     }
 
     @Override
     public void run() {
-        for(int i = 0; i < amount; i++) {
-            int rnd = ((int) (Math.random() * 1000)) % arena.getSpanws().size();
-            Location loc = arena.getSpanws().get(rnd);
+        int quantity = arenaData.getTotalActivePlayers() * round;
+        for(int i = 0; i < quantity; i++) {
+            int rnd = ((int) (Math.random() * 1000)) % arenaConfiguration.getSpanws().size();
+            Location loc = arenaConfiguration.getSpanws().get(rnd);
             if(loc == null) {
-                loc = arena.getPosStart();
+                loc = arenaConfiguration.getPosStart();
             }
-            Entity e = arena.getPos1().getWorld().spawn(loc, entity);
-            arena.addSpawnedMob(e);
+            Entity e = arenaConfiguration.getWorld().spawn(loc, entity);
+            arenaData.addSpawnedMob(e);
         }
 
-        MessageTask messageTask = new MessageTask(arena.getActivePlayers().keySet(), "Spawned " + amount + " " + entity.getSimpleName() + " monsters. Have fun killing them.");
+        MessageTask messageTask = new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.RED + "Spawned " + quantity + " " + entity.getSimpleName() + " monsters. Have fun killing them.");
         messageTask.run();
     }
 }

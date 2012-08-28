@@ -51,26 +51,23 @@ public class Plugin extends JavaPlugin {
             isOP = player.isOp();
         }
 
-        if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "join")){
-            instantHandler.registerPlayer(player);
-        } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "leave")){
-            instantHandler.unregisterPlayer(player);
+        if(cmd.getName().equalsIgnoreCase("instant") && !ArrayUtils.isEmpty(args)){
+            String arg1 = args[0];
+            String name = args.length > 1 ? args[1] : "";
+
+            instantHandler.handlePlayerCommands(name, arg1, player);
         } else if(cmd.getName().equalsIgnoreCase("instant")) {
-            Msg.sendMsg(player, "/instant join|leave");
-        } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "specjoin")){
-            instantHandler.specJoin(player);
-        } else if(cmd.getName().equalsIgnoreCase("instant") && ArrayUtils.contains(args, "specleave")){
-            instantHandler.specLeave(player);
+            Msg.sendMsg(player, "/instant list|join|leave|spec|unspec <arena>");
         } else if(cmd.getName().equalsIgnoreCase("instant")) {
-            Msg.sendMsg(player, "/instant join|leave|specjoin|specleave");
+            Msg.sendMsg(player, "/instant <arena> join|leave|specjoin|specleave");
         } else if(isOP && cmd.getName().equalsIgnoreCase("instantop") && args != null && args.length > 1 ){
             String name = args[0];
             String arg1 = args[1];
             String arg2 = args.length > 2 ? args[2] : null;
 
-            instantHandler.handlePlayerCommands(name, arg1, arg2, player);
+            instantHandler.handleOpCommands(name, arg1, arg2, player);
         } else if(isOP && cmd.getName().equalsIgnoreCase("instantop")) {
-            Msg.sendMsg(player, "/instantop pos1|pos2|posstart|posspec|starttime|stat|restart|forcestop|kick|ban|addspawn|clearspawn");
+            Msg.sendMsg(player, "/instantop pos1|pos2|posstart|posspec|duration|offset|stat|start|stop|kick|ban|addspawn|clearspawn");
         } else if(isOP && cmd.getName().equalsIgnoreCase("instantdebug")) {
             DEBUG = !DEBUG;
             Msg.sendMsg(player, "Debug is now: " + DEBUG);

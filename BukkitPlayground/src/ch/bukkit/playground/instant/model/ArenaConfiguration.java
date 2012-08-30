@@ -9,8 +9,8 @@ public class ArenaConfiguration {
 
     private Location pos1;
     private Location pos2;
-    private int offset;
-    private int duration;
+    private int offset = 5;
+    private int duration = 30;
     private Date endDate;
     private Location posStart;
     private Location posSpectator;

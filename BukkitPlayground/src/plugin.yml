@@ -1,4 +1,4 @@
-name: BukkitPlayground
+name: InstantBattle
 version: 0.0.1
 main: ch.bukkit.playground.Plugin
 commands:

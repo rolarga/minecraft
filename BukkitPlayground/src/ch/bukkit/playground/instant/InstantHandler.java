@@ -91,17 +91,6 @@ public class InstantHandler {
         }
     }
 
-    private String getArenaNames() {
-        String arenaNames = "";
-        for (String s : arenaHandlerTasks.keySet()) {
-            if (!StringUtils.isNullOrEmpty(arenaNames)) {
-                arenaNames += ", ";
-            }
-            arenaNames += s;
-        }
-        return arenaNames;
-    }
-
     public void handleOpCommands(String arenaName, String arg1, String arg2, Player player) {
         String playerName = player != null ? player.getName() : "CONSOLE";
 
@@ -234,5 +223,18 @@ public class InstantHandler {
             arenaHandlerTask.cancel();
             InstantConfig.saveArenaHandlerTask(arenaHandlerTask);
         }
+    }
+
+    // Helper methods
+
+    private String getArenaNames() {
+        String arenaNames = "";
+        for (String s : arenaHandlerTasks.keySet()) {
+            if (!StringUtils.isNullOrEmpty(arenaNames)) {
+                arenaNames += ", ";
+            }
+            arenaNames += s;
+        }
+        return arenaNames;
     }
 }

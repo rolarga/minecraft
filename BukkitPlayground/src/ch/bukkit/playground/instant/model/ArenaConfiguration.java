@@ -2,8 +2,13 @@ package ch.bukkit.playground.instant.model;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.Zombie;
 
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ArenaConfiguration {
 
@@ -15,7 +20,32 @@ public class ArenaConfiguration {
     private Location posStart;
     private Location posSpectator;
     private List<Location> spanws = new LinkedList<Location>();
-    private Set<Reward> rewards = new HashSet<Reward>();
+    private List<Level> levels = new LinkedList<Level>();
+    private BattleType battleType;
+
+    public ArenaConfiguration() {
+        Level level1 = new Level("Welcome to level 1!");
+        level1.addRound(getDefaultRound(262, 1));
+        level1.addRound(getDefaultRound(262, 2));
+        level1.addRound(getDefaultRound(262, 3));
+        level1.addRound(getDefaultRound(360, 4));
+
+        Level level2 = new Level("You reached level 2 - not bad.");
+        level2.addRound(getDefaultRound(352, 5));
+        level2.addRound(getDefaultRound(352, 6));
+        level2.addRound(getDefaultRound(352, 7));
+        level2.addRound(getDefaultRound(360, 8));
+
+        Level level3 = new Level("You reached the bossfight - seems you guys are pretty good, arent you? have fun!");
+        level3.addRound(getDefaultRound(354, 9));
+        level3.addRound(getDefaultRound(354, 10));
+        level3.addRound(getDefaultRound(354, 11));
+        level3.addRound(getDefaultRound(360, 12));
+
+        levels.add(level1);
+        levels.add(level2);
+        levels.add(level3);
+    }
 
     public Location getPos1() {
         return pos1;
@@ -81,12 +111,20 @@ public class ArenaConfiguration {
         this.spanws = spanws;
     }
 
-    public Set<Reward> getRewards() {
-        return rewards;
+    public List<Level> getLevels() {
+        return levels;
     }
 
-    public void setRewards(Set<Reward> rewards) {
-        this.rewards = rewards;
+    public void setLevels(List<Level> levels) {
+        this.levels = levels;
+    }
+
+    public BattleType getBattleType() {
+        return battleType;
+    }
+
+    public void setBattleType(BattleType battleType) {
+        this.battleType = battleType;
     }
 
     /**
@@ -102,5 +140,24 @@ public class ArenaConfiguration {
 
     public World getWorld() {
         return pos1.getWorld();
+    }
+
+    public double getTotalRounds() {
+        double totalRounds = 0.;
+        for (Level level : levels) {
+            totalRounds += level.getRoundQuantity();
+        }
+        return totalRounds;
+    }
+
+    // helper method to get round
+
+    private Round getDefaultRound(int itemId, int factor) {
+        Round round1 = new Round();
+        round1.addMob(Zombie.class, 2 * factor);
+        round1.addMob(Golem.class, 2 * factor);
+        round1.addMob(Spider.class, 2 * factor);
+        round1.addReward(itemId, 2 * factor);
+        return round1;
     }
 }

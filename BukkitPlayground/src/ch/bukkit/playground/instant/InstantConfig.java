@@ -24,9 +24,9 @@ public class InstantConfig {
     private static Logger logger = Logger.getLogger("InstantConfig");
 
     private static Gson gson;
-    private static File directory = new File("./plugins/BukkitPlayground");
+    private static File directory = new File("./plugins/InstantBattle");
 
-    static  {
+    static {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         builder.disableHtmlEscaping();
@@ -34,8 +34,8 @@ public class InstantConfig {
         gson = builder.create();
 
         // Initialize data structure
-        if(!directory.exists()) {
-            if(directory.mkdir()) {
+        if (!directory.exists()) {
+            if (directory.mkdir()) {
                 logger.info("Plugin folder created!");
             }
         }
@@ -60,7 +60,7 @@ public class InstantConfig {
     public static ArenaHandlerTask loadArenaHandlerTask(String arenaName) {
         try {
             File configFile = new File(getArenaFile(new ArenaHandlerTask(arenaName)) + ".acon");
-            File dataFile   = new File(getArenaFile(new ArenaHandlerTask(arenaName)) + ".adat");
+            File dataFile = new File(getArenaFile(new ArenaHandlerTask(arenaName)) + ".adat");
 
             ArenaConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaConfiguration.class);
             ArenaData data = gson.fromJson(FileUtils.readFileToString(dataFile, Plugin.CHARSET.name()), ArenaData.class);
@@ -87,12 +87,12 @@ public class InstantConfig {
             }
         }, null);
 
-        while(files.hasNext()) {
+        while (files.hasNext()) {
             File configFile = files.next();
             String arenaName = configFile.getName().replace(".acon", "");
             File dataFile = new File(configFile.getParent() + "/" + arenaName + ".adat");
             try {
-                if(dataFile.createNewFile()) {
+                if (dataFile.createNewFile()) {
                     logger.info("Created data file for arena: " + arenaName);
                 }
             } catch (IOException e) {

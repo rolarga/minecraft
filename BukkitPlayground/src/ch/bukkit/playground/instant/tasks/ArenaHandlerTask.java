@@ -3,12 +3,16 @@ package ch.bukkit.playground.instant.tasks;
 import ch.bukkit.playground.instant.InstantConfig;
 import ch.bukkit.playground.instant.model.ArenaConfiguration;
 import ch.bukkit.playground.instant.model.ArenaData;
+import ch.bukkit.playground.instant.model.Level;
+import ch.bukkit.playground.instant.model.Round;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -43,14 +47,14 @@ public class ArenaHandlerTask extends TimerTask {
         logger.info("Starting instant battle.");
 
         Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getOffset()));
-        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getOffset()/2));
+        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getOffset() / 2));
         Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()));
         Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getDuration() + 1));
 
-        new BroadcastTask(ChatColor.BLUE + "A new instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
+        new BroadcastTask(ChatColor.BLUE + "A new " + arenaConfiguration.getBattleType() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
 
-        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(), ChatColor.YELLOW + "A new instant battle starts in 5 minutes, %registered_players% players are registerd - Join now!"), tFirstMessage);
-        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(),ChatColor.YELLOW + "A new instant battle starts in 1 minutes, %registered_players% players are registerd - Join now!."), tSecondMessage);
+        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + arenaConfiguration.getBattleType() + " instant battle starts in 5 minutes, %registered_players% players are registerd - Join now!"), tFirstMessage);
+        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + arenaConfiguration.getBattleType() + " instant battle starts in 1 minutes, %registered_players% players are registerd - Join now!."), tSecondMessage);
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -81,39 +85,27 @@ public class ArenaHandlerTask extends TimerTask {
                 arenaData.setTotalActivePlayers(arenaData.getActivePlayers().size());
                 InstantConfig.saveArenaHandlerTask(ArenaHandlerTask.this);
 
-                new BroadcastTask(arenaData.getActivePlayers().keySet(),ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
+                new BroadcastTask(arenaData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
                 new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!").run();
             }
         };
         arenaData.addTask(timerTask, t);
 
-        // first round takes 1/6 for 10 times
-        long millisDurationRoundType1 = Math.max(DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()) * 2 / 7, 1);
-        // first round takes 2/6 for 10 times
-        long millisDurationRoundType2 = Math.max(DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()) * 4 / 7, 1);
-        // first round takes 3/6 for 10 times
-        long millisDurationRoundType3 = Math.max(DateHelper.getMillisForMinutes(arenaConfiguration.getDuration())     / 7, 1);
-
         Date time = tPlus1Minute;
-        for (int i = 1; i <= 10; i++) {
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Zombie.class, i), time);
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Golem.class,  i), time);
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Spider.class, i), time);
-            time = new Date(time.getTime() + millisDurationRoundType1);
-        }
+        double totalRounds = arenaConfiguration.getTotalRounds();
+        for (Level level : arenaConfiguration.getLevels()) {
+            double multiplicator = level.getRoundQuantity() / totalRounds;
+            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()) * multiplicator, 1);
 
-        for (int i = 1; i <= 10; i++) {
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, CaveSpider.class, i), time);
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Blaze.class,  i), time);
-            arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, MagmaCube.class, i), time);
-            time = new Date(time.getTime() + millisDurationRoundType2);
-        }
+            arenaData.addTask(new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
+            for (Round round : level.getRounds()) {
+                for (Map.Entry<Class<? extends Entity>, Integer> mob2Quantity : round.getMobs().entrySet()) {
+                    arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
+                }
+                time = new Date(time.getTime() + millisPerRound);
+            }
 
-        arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Giant.class,  1), time);
-        arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, Ghast.class, 10), time);
-        arenaData.addTask(new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.YELLOW + "You reached the bossfight - seems you guys are pretty good, arent you? have fun!"), time);
-        time = new Date(time.getTime() + millisDurationRoundType3);
-        arenaConfiguration.setEndDate(time);
+        }
 
         TimerTask timerEndTask = new TimerTask() {
             @Override

@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class Plugin extends JavaPlugin {
 
 
-    public static final String PLUGIN_NAME = "BukkitPlayground";
+    public static final String PLUGIN_NAME = "InstantBattle";
     public static final Charset CHARSET = Charset.forName("UTF-8");
     public static boolean DEBUG = false;
     private static Logger logger = Logger.getLogger("Plugin");
@@ -25,7 +25,7 @@ public class Plugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger.info("Playground Plugin enabled!");
+        logger.info("InstantBattle Plugin enabled!");
 
         InitializeLibraries();
 
@@ -43,7 +43,7 @@ public class Plugin extends JavaPlugin {
         }
     }
 
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         boolean isOP = true;
         Player player = null;
         if (sender instanceof Player) {
@@ -51,24 +51,24 @@ public class Plugin extends JavaPlugin {
             isOP = player.isOp();
         }
 
-        if(cmd.getName().equalsIgnoreCase("instant") && !ArrayUtils.isEmpty(args)){
+        if (cmd.getName().equalsIgnoreCase("instant") && !ArrayUtils.isEmpty(args)) {
             String arg1 = args[0];
             String name = args.length > 1 ? args[1] : "";
 
             instantHandler.handlePlayerCommands(name, arg1, player);
-        } else if(cmd.getName().equalsIgnoreCase("instant")) {
+        } else if (cmd.getName().equalsIgnoreCase("instant")) {
             Msg.sendMsg(player, "/instant list|join|leave|spec|unspec <arena>");
-        } else if(cmd.getName().equalsIgnoreCase("instant")) {
+        } else if (cmd.getName().equalsIgnoreCase("instant")) {
             Msg.sendMsg(player, "/instant <arena> join|leave|specjoin|specleave");
-        } else if(isOP && cmd.getName().equalsIgnoreCase("instantop") && args != null && args.length > 1 ){
+        } else if (isOP && cmd.getName().equalsIgnoreCase("instantop") && args != null && args.length > 1) {
             String name = args[0];
             String arg1 = args[1];
             String arg2 = args.length > 2 ? args[2] : null;
 
             instantHandler.handleOpCommands(name, arg1, arg2, player);
-        } else if(isOP && cmd.getName().equalsIgnoreCase("instantop")) {
+        } else if (isOP && cmd.getName().equalsIgnoreCase("instantop")) {
             Msg.sendMsg(player, "/instantop pos1|pos2|posstart|posspec|duration|offset|stat|start|stop|kick|ban|addspawn|clearspawn");
-        } else if(isOP && cmd.getName().equalsIgnoreCase("instantdebug")) {
+        } else if (isOP && cmd.getName().equalsIgnoreCase("instantdebug")) {
             DEBUG = !DEBUG;
             Msg.sendMsg(player, "Debug is now: " + DEBUG);
         }
@@ -78,13 +78,13 @@ public class Plugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if(instantHandler != null) {
+        if (instantHandler != null) {
             try {
                 instantHandler.disable();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        logger.info("Playground Plugin disabled!");
+        logger.info("InstantBattle Plugin disabled!");
     }
 }

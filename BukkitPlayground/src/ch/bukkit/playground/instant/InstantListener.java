@@ -28,7 +28,6 @@ public class InstantListener implements Listener {
         instantHandler.handlePlayerEvents(move);
     }
 
-
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerTeleport(PlayerTeleportEvent teleport) {
         instantHandler.handlePlayerEvents(teleport);
@@ -46,7 +45,7 @@ public class InstantListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerQuit(PlayerQuitEvent quit) {
-
+        instantHandler.handlePlayerEvents(quit);
     }
 }
 

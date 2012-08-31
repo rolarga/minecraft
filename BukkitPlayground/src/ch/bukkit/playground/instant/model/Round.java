@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Round {
+public class Round implements Validataeble {
 
     private Set<Reward> rewards = new HashSet<Reward>();
     private Map<Class<? extends Entity>, Integer> mobs = new HashMap<Class<? extends Entity>, Integer>();
@@ -34,5 +34,14 @@ public class Round {
 
     public void addReward(int itemId, int quantity) {
         rewards.add(new Reward(itemId, quantity));
+    }
+
+    @Override
+    public boolean isValid() {
+        for (Reward reward : rewards) {
+            if(!reward.isValid()) return false;
+        }
+
+        return mobs.size() > 0 && rewards.size() > 0;
     }
 }

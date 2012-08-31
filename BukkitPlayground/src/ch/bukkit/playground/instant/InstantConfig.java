@@ -3,7 +3,6 @@ package ch.bukkit.playground.instant;
 import ch.bukkit.playground.Plugin;
 import ch.bukkit.playground.instant.model.ArenaConfiguration;
 import ch.bukkit.playground.instant.model.ArenaData;
-import ch.bukkit.playground.instant.tasks.ArenaHandlerTask;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
@@ -36,18 +35,18 @@ public class InstantConfig {
         // Initialize data structure
         if (!directory.exists()) {
             if (directory.mkdir()) {
-                logger.info("Plugin folder created!");
+                logger.info("InstantBattle plugin folder created!");
             }
         }
     }
 
-    public static void saveArenaHandlerTask(ArenaHandlerTask arenaHandlerTask) {
-        String config = gson.toJson(arenaHandlerTask.getArenaConfiguration());
-        String data = gson.toJson(arenaHandlerTask.getArenaData());
+    public static void saveBattleHandler(BattleHandler battleHandler) {
+        String config = gson.toJson(battleHandler.getArenaConfiguration());
+        String data = gson.toJson(battleHandler.getArenaData());
 
         try {
-            File configFile = new File(getArenaFile(arenaHandlerTask) + ".acon");
-            File dataFile = new File(getArenaFile(arenaHandlerTask) + ".adat");
+            File configFile = new File(getBattleFile(battleHandler) + ".bcon");
+            File dataFile = new File(getBattleFile(battleHandler) + ".bdat");
             FileUtils.writeStringToFile(configFile, config, Plugin.CHARSET.name());
             FileUtils.writeStringToFile(dataFile, data, Plugin.CHARSET.name());
         } catch (IOException e) {
@@ -57,28 +56,8 @@ public class InstantConfig {
         }
     }
 
-    public static ArenaHandlerTask loadArenaHandlerTask(String arenaName) {
-        try {
-            File configFile = new File(getArenaFile(new ArenaHandlerTask(arenaName)) + ".acon");
-            File dataFile = new File(getArenaFile(new ArenaHandlerTask(arenaName)) + ".adat");
-
-            ArenaConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaConfiguration.class);
-            ArenaData data = gson.fromJson(FileUtils.readFileToString(dataFile, Plugin.CHARSET.name()), ArenaData.class);
-
-            // we found it and we can deliver it --> do it
-            return new ArenaHandlerTask(arenaName, configuration, data);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error while loading single model.", e);
-        }
-
-        // otherwise return null
-        return null;
-    }
-
-    // Helper methods
-
-    public static HashMap<String, ArenaHandlerTask> loadAllArenaHandlerTasks() {
-        HashMap<String, ArenaHandlerTask> arenaHandlerTasks = new HashMap<String, ArenaHandlerTask>();
+    public static HashMap<String, BattleHandler> loadBattleHandlers() {
+        HashMap<String, BattleHandler> arenaHandlerTasks = new HashMap<String, BattleHandler>();
 
         Iterator<File> files = FileUtils.iterateFiles(directory, new AbstractFileFilter() {
             @Override
@@ -102,8 +81,8 @@ public class InstantConfig {
             try {
                 ArenaConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaConfiguration.class);
                 ArenaData data = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaData.class);
-                ArenaHandlerTask arenaHandlerTask = new ArenaHandlerTask(arenaName, configuration, data);
-                arenaHandlerTasks.put(arenaName, arenaHandlerTask);
+                BattleHandler battleHandler = new BattleHandler(arenaName, configuration, data);
+                arenaHandlerTasks.put(arenaName, battleHandler);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error while loading arenas.", e);
             }
@@ -112,7 +91,7 @@ public class InstantConfig {
         return arenaHandlerTasks;
     }
 
-    private static String getArenaFile(ArenaHandlerTask arenaHandlerTask) {
-        return directory.getAbsolutePath() + "/" + arenaHandlerTask.getName();
+    private static String getBattleFile(BattleHandler battleHandler) {
+        return directory.getAbsolutePath() + "/" + battleHandler.getName();
     }
 }

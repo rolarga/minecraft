@@ -1,6 +1,6 @@
 package ch.bukkit.playground.instant.model;
 
-public class Reward {
+public class Reward implements Validataeble {
 
     private int id;
     private int quantity;
@@ -27,5 +27,10 @@ public class Reward {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public boolean isValid() {
+        return id > 0 && quantity > 0;
     }
 }

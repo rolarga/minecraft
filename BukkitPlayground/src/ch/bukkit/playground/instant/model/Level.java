@@ -3,7 +3,7 @@ package ch.bukkit.playground.instant.model;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Level {
+public class Level implements Validataeble {
 
     private List<Round> rounds = new LinkedList<Round>();
     private String welcomeMessage = "Welcome to a new level!";
@@ -37,5 +37,14 @@ public class Level {
 
     public void setWelcomeMessage(String welcomeMessage) {
         this.welcomeMessage = welcomeMessage;
+    }
+
+    @Override
+    public boolean isValid() {
+        for (Round round : rounds) {
+            if(!round.isValid()) return false;
+        }
+
+        return true;
     }
 }

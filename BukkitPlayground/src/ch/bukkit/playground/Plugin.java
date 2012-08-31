@@ -79,11 +79,7 @@ public class Plugin extends JavaPlugin {
     @Override
     public void onDisable() {
         if (instantHandler != null) {
-            try {
-                instantHandler.disable();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            instantHandler.disable();
         }
         logger.info("InstantBattle Plugin disabled!");
     }

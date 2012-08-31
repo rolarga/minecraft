@@ -15,6 +15,7 @@ public class ArenaData {
     private HashMap<Player, Location> originSpectatorLocations = new HashMap<Player, Location>();
     private Map<TimerTask, Date> tasks = new HashMap<TimerTask, Date>();
     private int totalActivePlayers;
+    private Date endDate;
 
     public Set<Player> getRegisteredPlayers() {
         return registeredPlayers;
@@ -106,5 +107,13 @@ public class ArenaData {
 
     public void setTotalActivePlayers(int totalActivePlayers) {
         this.totalActivePlayers = totalActivePlayers;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }

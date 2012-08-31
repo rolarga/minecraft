@@ -4,7 +4,7 @@ package ch.bukkit.playground.instant.eventhandlers;
 import ch.bukkit.playground.Plugin;
 import ch.bukkit.playground.instant.model.ArenaConfiguration;
 import ch.bukkit.playground.instant.model.ArenaData;
-import ch.bukkit.playground.instant.tasks.ArenaHandlerTask;
+import ch.bukkit.playground.instant.BattleHandler;
 import ch.bukkit.playground.instant.tasks.MessageTask;
 import org.apache.commons.collections.MapUtils;
 import org.bukkit.Location;
@@ -19,9 +19,9 @@ public class PlayerRespawnEventHandler implements PlayerEventHandler<PlayerRespa
     Logger logger = Logger.getLogger("PlayerRespawnEventHandler");
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void processEvent(PlayerRespawnEvent event, ArenaHandlerTask arenaHandlerTask) {
-        ArenaConfiguration arenaConfiguration = arenaHandlerTask.getArenaConfiguration();
-        ArenaData arenaData = arenaHandlerTask.getArenaData();
+    public void processEvent(PlayerRespawnEvent event, BattleHandler battleHandler) {
+        ArenaConfiguration arenaConfiguration = battleHandler.getArenaConfiguration();
+        ArenaData arenaData = battleHandler.getArenaData();
 
         Location loc = arenaData.getActivePlayers().remove(event.getPlayer());
 
@@ -41,7 +41,7 @@ public class PlayerRespawnEventHandler implements PlayerEventHandler<PlayerRespa
         if (MapUtils.isEmpty(arenaData.getActivePlayers())) {
             if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " was last one in battle.");
 
-            arenaHandlerTask.cleanup();
+            battleHandler.finishArena();
         } else {
             if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " died.");
 

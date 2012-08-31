@@ -10,18 +10,17 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ArenaConfiguration {
+public class ArenaConfiguration implements Validataeble {
 
     private Location pos1;
     private Location pos2;
     private int offset = 5;
     private int duration = 30;
-    private Date endDate;
     private Location posStart;
     private Location posSpectator;
     private List<Location> spanws = new LinkedList<Location>();
     private List<Level> levels = new LinkedList<Level>();
-    private BattleType battleType;
+    private BattleType battleType = BattleType.COOP;
 
     public ArenaConfiguration() {
         Level level1 = new Level("Welcome to level 1!");
@@ -77,14 +76,6 @@ public class ArenaConfiguration {
 
     public void setDuration(int duration) {
         this.duration = duration;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
     }
 
     public Location getPosStart() {
@@ -159,5 +150,22 @@ public class ArenaConfiguration {
         round1.addMob(Spider.class, 2 * factor);
         round1.addReward(itemId, 2 * factor);
         return round1;
+    }
+
+    @Override
+    public boolean isValid() {
+        if(battleType == BattleType.COOP) {
+            for (Level level : levels) {
+                if(!level.isValid()) return false;
+            }
+        }
+
+        return  pos1 != null &&
+                pos2 != null &&
+                posStart != null &&
+                posSpectator != null &&
+                offset > 0. &&
+                duration > 0. &&
+                (battleType != BattleType.COOP || levels.size() > 0);
     }
 }

@@ -8,20 +8,22 @@ import java.util.*;
 
 public class ArenaData {
 
-    private Set<Player> registeredPlayers = new HashSet<Player>();
+    private List<Player> registeredPlayers = new LinkedList<Player>();
     private HashMap<Player, Location> activePlayers = new HashMap<Player, Location>();
     private Map<String, String> blockedPlayers = new HashMap<String, String>();
     private List<Entity> spawnedMobs = new LinkedList<Entity>();
     private HashMap<Player, Location> originSpectatorLocations = new HashMap<Player, Location>();
     private Map<TimerTask, Date> tasks = new HashMap<TimerTask, Date>();
+    private Map<Integer, List<Player>> groups = new HashMap<Integer, List<Player>>();
     private int totalActivePlayers;
     private Date endDate;
+    private boolean active;
 
-    public Set<Player> getRegisteredPlayers() {
+    public List<Player> getRegisteredPlayers() {
         return registeredPlayers;
     }
 
-    public void setRegisteredPlayers(Set<Player> registeredPlayers) {
+    public void setRegisteredPlayers(List<Player> registeredPlayers) {
         this.registeredPlayers = registeredPlayers;
     }
 
@@ -65,18 +67,28 @@ public class ArenaData {
         this.tasks = tasks;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     // Helper methods
 
     public boolean addRegisteredPlayer(Player player) {
-        if(blockedPlayers.containsKey(player.getName())) {
+        if (blockedPlayers.containsKey(player.getName())) {
             return false;
         }
-        registeredPlayers.add(player);
+        if (!registeredPlayers.contains(player)) {
+            registeredPlayers.add(player);
+        }
         return true;
     }
 
     public Player unregisterPlayer(Player player) {
-        if(registeredPlayers.remove(player)) {
+        if (registeredPlayers.remove(player)) {
             return player;
         }
         return null;
@@ -89,6 +101,7 @@ public class ArenaData {
     public void addSpawnedMob(Entity e) {
         spawnedMobs.add(e);
     }
+
     public void addActivePlayer(Player player, Location loc) {
         activePlayers.put(player, loc);
     }
@@ -115,5 +128,33 @@ public class ArenaData {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public Map<Integer, List<Player>> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Map<Integer, List<Player>> groups) {
+        this.groups = groups;
+    }
+
+    public void addPlayerToGroup(int groupId, Player player) {
+        List<Player> players = groups.get(groupId);
+        if (players == null) {
+            players = new LinkedList<Player>();
+            groups.put(groupId, players);
+        }
+        players.add(player);
+    }
+
+    public List<Player> getRegisteredPlayersSortedByLevel() {
+        List<Player> players = new LinkedList<Player>(getRegisteredPlayers());
+        Collections.sort(players, new Comparator<Player>() {
+            @Override
+            public int compare(Player player, Player player1) {
+                return player.getLevel() - player1.getLevel();
+            }
+        });
+        return players;
     }
 }

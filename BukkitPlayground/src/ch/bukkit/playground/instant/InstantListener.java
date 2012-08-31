@@ -15,7 +15,9 @@ public class InstantListener implements Listener {
     public InstantListener(InstantHandler instantHandler) {
         this.instantHandler = instantHandler;
 
-        Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
+        if (Bukkit.getServer() != null) {
+            Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -6,7 +6,6 @@ import org.bukkit.entity.Golem;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Zombie;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +17,7 @@ public class ArenaConfiguration implements Validataeble {
     private int duration = 30;
     private Location posStart;
     private Location posSpectator;
+    private int groups = 1;
     private List<Location> spanws = new LinkedList<Location>();
     private List<Level> levels = new LinkedList<Level>();
     private BattleType battleType = BattleType.COOP;
@@ -118,6 +118,14 @@ public class ArenaConfiguration implements Validataeble {
         this.battleType = battleType;
     }
 
+    public int getGroups() {
+        return groups;
+    }
+
+    public void setGroups(int groups) {
+        this.groups = groups;
+    }
+
     /**
      * @return compelete duration of an arena run + 1 minute to ensure small break and minimum duration
      */
@@ -154,13 +162,13 @@ public class ArenaConfiguration implements Validataeble {
 
     @Override
     public boolean isValid() {
-        if(battleType == BattleType.COOP) {
+        if (battleType == BattleType.COOP) {
             for (Level level : levels) {
-                if(!level.isValid()) return false;
+                if (!level.isValid()) return false;
             }
         }
 
-        return  pos1 != null &&
+        return pos1 != null &&
                 pos2 != null &&
                 posStart != null &&
                 posSpectator != null &&

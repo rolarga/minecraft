@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.player.*;
@@ -34,12 +35,6 @@ public class InstantHandler {
 
         // Load arena handlers
         battleHandlers = InstantConfig.loadBattleHandlers();
-        // start all valid configured battles
-        for (BattleHandler battleHandler : battleHandlers.values()) {
-            if(battleHandler.getArenaConfiguration().isValid()) {
-                battleHandler.start();
-            }
-        }
 
         // Initialize player event handlers
         playerEventHandlers.put(PlayerMoveEvent.class, new PlayerMoveEventHandler());
@@ -50,6 +45,16 @@ public class InstantHandler {
 
         // Initialize entity event handlers
         entityEventHandlers.put(EntityDeathEvent.class, new EntityDeathEventHandler());
+        entityEventHandlers.put(EntityDamageByEntityEvent.class, new EntityDamageByEntityEventHandler());
+    }
+
+    public void start() {
+        // start all valid configured battles
+        for (BattleHandler battleHandler : battleHandlers.values()) {
+            if (battleHandler.getArenaConfiguration().isValid()) {
+                battleHandler.start();
+            }
+        }
     }
 
     public void handlePlayerCommands(String name, String arg1, Player player) {

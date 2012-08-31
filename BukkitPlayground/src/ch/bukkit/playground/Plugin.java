@@ -30,6 +30,7 @@ public class Plugin extends JavaPlugin {
         InitializeLibraries();
 
         instantHandler = new InstantHandler();
+        instantHandler.start();
     }
 
     private void InitializeLibraries() {

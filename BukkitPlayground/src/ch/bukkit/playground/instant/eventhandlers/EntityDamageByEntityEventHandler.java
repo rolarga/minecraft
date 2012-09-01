@@ -10,18 +10,18 @@ public class EntityDamageByEntityEventHandler implements EntityEventHandler<Enti
 
     @Override
     public void processEvent(EntityDamageByEntityEvent event, BattleHandler battleHandler, Player player) {
-        if (battleHandler.getArenaData().isActive()) {
+        if (battleHandler.getBattleData().isActive()) {
             if (event.getDamager().getClass().isAssignableFrom(Player.class)) {
                 Player damager = (Player) event.getDamager();
 
-                switch (battleHandler.getArenaConfiguration().getBattleType()) {
+                switch (battleHandler.getBattleConfiguration().getBattleType()) {
                     case COOP:
                         event.setCancelled(true);
                         event.setDamage(0);
                         break;
                     case GROUPPVP:
                         // check if the damager is in the same group as the player --> cancel event
-                        for (List<Player> players : battleHandler.getArenaData().getGroups().values()) {
+                        for (List<Player> players : battleHandler.getBattleData().getGroups().values()) {
                             if (players.contains(player) && players.contains(damager)) {
                                 event.setCancelled(true);
                                 event.setDamage(0);

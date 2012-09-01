@@ -1,8 +1,8 @@
 package ch.bukkit.playground.instant;
 
 import ch.bukkit.playground.Plugin;
-import ch.bukkit.playground.instant.model.ArenaConfiguration;
-import ch.bukkit.playground.instant.model.ArenaData;
+import ch.bukkit.playground.instant.model.BattleConfiguration;
+import ch.bukkit.playground.instant.model.BattleData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
@@ -41,8 +41,8 @@ public class InstantConfig {
     }
 
     public static void saveBattleHandler(BattleHandler battleHandler) {
-        String config = gson.toJson(battleHandler.getArenaConfiguration());
-        String data = gson.toJson(battleHandler.getArenaData());
+        String config = gson.toJson(battleHandler.getBattleConfiguration());
+        String data = gson.toJson(battleHandler.getBattleData());
 
         try {
             File configFile = new File(getBattleFile(battleHandler) + ".bcon");
@@ -79,8 +79,8 @@ public class InstantConfig {
             }
 
             try {
-                ArenaConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaConfiguration.class);
-                ArenaData data = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), ArenaData.class);
+                BattleConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleConfiguration.class);
+                BattleData data = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleData.class);
                 BattleHandler battleHandler = new BattleHandler(arenaName, configuration, data);
                 arenaHandlerTasks.put(arenaName, battleHandler);
             } catch (IOException e) {

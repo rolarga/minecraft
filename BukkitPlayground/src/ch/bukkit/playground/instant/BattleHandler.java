@@ -19,17 +19,17 @@ import java.util.logging.Logger;
 
 public class BattleHandler {
 
-    private ArenaConfiguration arenaConfiguration;
-    private ArenaData arenaData;
+    private BattleConfiguration battleConfiguration;
+    private BattleData battleData;
     private String name;
 
     private Timer arenaTimer;
     private static Logger logger = Logger.getLogger("BattleHandler");
 
 
-    public BattleHandler(String name, ArenaConfiguration arenaConfiguration, ArenaData arenaData) {
-        this.arenaConfiguration = arenaConfiguration;
-        this.arenaData = arenaData;
+    public BattleHandler(String name, BattleConfiguration battleConfiguration, BattleData battleData) {
+        this.battleConfiguration = battleConfiguration;
+        this.battleData = battleData;
         this.name = name;
     }
 
@@ -38,7 +38,7 @@ public class BattleHandler {
     }
 
     public void start() {
-        if (arenaData.getEndDate() != null && new Date().getTime() < (arenaData.getEndDate().getTime() + 300000)) {
+        if (battleData.getEndDate() != null && new Date().getTime() < (battleData.getEndDate().getTime() + 300000)) {
             logger.info("Cannot yet start an instant battle.");
             return;
         }
@@ -48,31 +48,31 @@ public class BattleHandler {
         // create new plain timer
         arenaTimer = new Timer();
 
-        Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getOffset()));
-        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getOffset() / 2));
-        Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()));
-        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(arenaConfiguration.getDuration() + 1));
+        Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset()));
+        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 2));
+        Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration()));
+        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration() + 1));
 
-        new BroadcastTask(ChatColor.BLUE + "A new " + arenaConfiguration.getBattleType().getDisplayName() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
+        new BroadcastTask(ChatColor.BLUE + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
 
-        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + arenaConfiguration.getBattleType().getDisplayName() + " instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tFirstMessage);
-        arenaData.addTask(new BroadcastTask(arenaData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + arenaConfiguration.getBattleType().getDisplayName() + " instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tSecondMessage);
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tFirstMessage);
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tSecondMessage);
 
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 // get active players
-                arenaData.getActivePlayers().clear();
+                battleData.getActivePlayers().clear();
 
                 // move online players
                 int currentGroup = 0;
-                for (Player player : arenaData.getRegisteredPlayersSortedByLevel()) {
+                for (Player player : battleData.getRegisteredPlayersSortedByLevel()) {
                     if (player.isOnline()) {
                         Location loc = player.getLocation();
-                        player.teleport(arenaConfiguration.getPosStart());
-                        arenaData.addActivePlayer(player, loc);
-                        arenaData.addPlayerToGroup(0, player);
-                        currentGroup = (currentGroup + 1) % arenaConfiguration.getGroups();
+                        player.teleport(battleConfiguration.getPosStart());
+                        battleData.addActivePlayer(player, loc);
+                        battleData.addPlayerToGroup(0, player);
+                        currentGroup = (currentGroup + 1) % battleConfiguration.getGroups();
 
                         // make player ready for the fight
                         if (!player.isOp()) {
@@ -86,40 +86,40 @@ public class BattleHandler {
                         player.sendMessage(ChatColor.RED + "You were not added to the instant battle as you were offline at that time.");
                     }
                 }
-                arenaData.getRegisteredPlayers().clear();
-                arenaData.setTotalActivePlayers(arenaData.getActivePlayers().size());
+                battleData.getRegisteredPlayers().clear();
+                battleData.setTotalActivePlayers(battleData.getActivePlayers().size());
                 InstantConfig.saveBattleHandler(BattleHandler.this);
 
-                new BroadcastTask(arenaData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
-                new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!").run();
+                new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
+                new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!").run();
             }
         };
-        arenaData.addTask(timerTask, t);
+        battleData.addTask(timerTask, t);
 
         Date time = tPlus1Minute;
-        double totalRounds = arenaConfiguration.getTotalRounds();
-        for (final Level level : arenaConfiguration.getLevels()) {
+        double totalRounds = battleConfiguration.getTotalRounds();
+        for (final Level level : battleConfiguration.getLevels()) {
             double multiplicator = level.getRoundQuantity() / totalRounds;
-            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(arenaConfiguration.getDuration()) * multiplicator, 1);
+            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(battleConfiguration.getDuration()) * multiplicator, 1);
 
             // set the arena active when first spawn starts
-            arenaData.addTask(new TimerTask() {
+            battleData.addTask(new TimerTask() {
                 @Override
                 public void run() {
-                    arenaData.setActive(true);
+                    battleData.setActive(true);
                 }
             }, time);
 
             // add spawns and welcome messages go each level/round
-            arenaData.addTask(new MessageTask(arenaData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
+            battleData.addTask(new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
             for (final Round round : level.getRounds()) {
                 for (Map.Entry<Class<? extends Entity>, Integer> mob2Quantity : round.getMobs().entrySet()) {
-                    arenaData.addTask(new SpawnTask(arenaConfiguration, arenaData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
+                    battleData.addTask(new SpawnTask(battleConfiguration, battleData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
                 }
                 time = new Date(time.getTime() + millisPerRound);
 
                 // at the end of each round, there are rewards for each remaining player
-                arenaData.addTask(new TimerTask() {
+                battleData.addTask(new TimerTask() {
                     @Override
                     public void run() {
                         giveRewards(round);
@@ -129,14 +129,14 @@ public class BattleHandler {
         }
 
         // finishArena at the end
-        arenaData.addTask(new TimerTask() {
+        battleData.addTask(new TimerTask() {
             @Override
             public void run() {
                 finishArena();
             }
-        }, arenaData.getEndDate());
+        }, battleData.getEndDate());
 
-        for (Map.Entry<TimerTask, Date> timerTaskDateEntry : arenaData.getTasks().entrySet()) {
+        for (Map.Entry<TimerTask, Date> timerTaskDateEntry : battleData.getTasks().entrySet()) {
             arenaTimer.schedule(timerTaskDateEntry.getKey(), timerTaskDateEntry.getValue());
         }
 
@@ -148,7 +148,7 @@ public class BattleHandler {
         arenaTimer.cancel();
         cleanupArena();
 
-        arenaData.getRegisteredPlayers().clear();
+        battleData.getRegisteredPlayers().clear();
         clearActivePlayersAndTeleportBack();
 
         logger.info("Timers are stopped, battle is over.");
@@ -164,7 +164,7 @@ public class BattleHandler {
     public void finishArena() {
         boolean allMobsDead = true;
 
-        for (Entity entity : arenaData.getSpawnedMobs()) {
+        for (Entity entity : battleData.getSpawnedMobs()) {
             if (entity.isValid() && !entity.isDead()) {
                 allMobsDead = false;
             }
@@ -172,7 +172,7 @@ public class BattleHandler {
 
         // we found a mob which is not dead, so the players didnt win the battle
         if (allMobsDead) {
-            for (Player player : arenaData.getActivePlayers().keySet()) {
+            for (Player player : battleData.getActivePlayers().keySet()) {
                 if (!player.isDead()) {
                     player.sendMessage(ChatColor.GOLD + "You are one of the winners, congratulations!");
                 } else {
@@ -185,9 +185,9 @@ public class BattleHandler {
         clearActivePlayersAndTeleportBack();
 
         // clear model
-        for (Entity entity : arenaConfiguration.getPos1().getWorld().getEntities()) {
+        for (Entity entity : battleConfiguration.getPos1().getWorld().getEntities()) {
             if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) &&
-                    LocationHelper.isInSquare(arenaConfiguration.getPos1(), arenaConfiguration.getPos2(), entity.getLocation())) {
+                    LocationHelper.isInSquare(battleConfiguration.getPos1(), battleConfiguration.getPos2(), entity.getLocation())) {
                 entity.remove();
             }
         }
@@ -200,7 +200,7 @@ public class BattleHandler {
     }
 
     private void giveRewards(Round round) {
-        for (Map.Entry<Player, Location> activePlayer : arenaData.getActivePlayers().entrySet()) {
+        for (Map.Entry<Player, Location> activePlayer : battleData.getActivePlayers().entrySet()) {
             if (!activePlayer.getKey().isDead()) {
                 List<ItemStack> itemStacks = new LinkedList<ItemStack>();
                 for (Reward reward : round.getRewards()) {
@@ -212,25 +212,25 @@ public class BattleHandler {
     }
 
     private void cleanupArena() {
-        for (TimerTask timerTask : arenaData.getTasks().keySet()) {
+        for (TimerTask timerTask : battleData.getTasks().keySet()) {
             timerTask.cancel();
         }
 
-        for (Entity entity : arenaData.getSpawnedMobs()) {
+        for (Entity entity : battleData.getSpawnedMobs()) {
             if (entity.isValid()) {
                 entity.remove();
             }
         }
-        arenaData.setEndDate(null);
+        battleData.setEndDate(null);
     }
 
     public void clearActivePlayersAndTeleportBack() {
         // add active and spectators to be ported back
-        Map<Player, Location> playerLocationMap = new HashMap<Player, Location>(arenaData.getActivePlayers());
-        playerLocationMap.putAll(arenaData.getOriginSpectatorLocations());
+        Map<Player, Location> playerLocationMap = new HashMap<Player, Location>(battleData.getActivePlayers());
+        playerLocationMap.putAll(battleData.getOriginSpectatorLocations());
 
-        arenaData.getActivePlayers().clear();
-        arenaData.getOriginSpectatorLocations().clear();
+        battleData.getActivePlayers().clear();
+        battleData.getOriginSpectatorLocations().clear();
 
         for (Map.Entry<Player, Location> playerLocationEntry : playerLocationMap.entrySet()) {
             playerLocationEntry.getKey().teleport(playerLocationEntry.getValue());
@@ -241,12 +241,12 @@ public class BattleHandler {
         return name;
     }
 
-    public ArenaConfiguration getArenaConfiguration() {
-        return arenaConfiguration;
+    public BattleConfiguration getBattleConfiguration() {
+        return battleConfiguration;
     }
 
-    public ArenaData getArenaData() {
-        return arenaData;
+    public BattleData getBattleData() {
+        return battleData;
     }
 
     @Override

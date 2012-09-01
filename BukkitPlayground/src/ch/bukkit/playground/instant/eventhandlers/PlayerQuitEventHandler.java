@@ -17,19 +17,19 @@ public class PlayerQuitEventHandler implements PlayerEventHandler<PlayerQuitEven
     @EventHandler(priority = EventPriority.HIGHEST)
     public void processEvent(PlayerQuitEvent quit, BattleHandler battleHandler) {
         // remove player from model and teleport to start point
-        Location loc = battleHandler.getArenaData().getActivePlayers().remove(quit.getPlayer());
+        Location loc = battleHandler.getBattleData().getActivePlayers().remove(quit.getPlayer());
         if (loc != null) {
             quit.getPlayer().teleport(loc);
 
-            if (MapUtils.isEmpty(battleHandler.getArenaData().getActivePlayers())) {
+            if (MapUtils.isEmpty(battleHandler.getBattleData().getActivePlayers())) {
                 battleHandler.finishArena();
             } else {
-                MessageTask messageTask = new MessageTask(battleHandler.getArenaData().getActivePlayers().keySet(), quit.getPlayer().getName() + " logged out - did he cheat on you?");
+                MessageTask messageTask = new MessageTask(battleHandler.getBattleData().getActivePlayers().keySet(), quit.getPlayer().getName() + " logged out - did he cheat on you?");
                 messageTask.run();
             }
 
             if (quit.getPlayer().getHealth() <= 4) {
-                battleHandler.getArenaData().addBlockedPlayer(quit.getPlayer().getName(), "Player left because of low health.");
+                battleHandler.getBattleData().addBlockedPlayer(quit.getPlayer().getName(), "Player left because of low health.");
                 quit.getPlayer().getInventory().clear();
             }
         }

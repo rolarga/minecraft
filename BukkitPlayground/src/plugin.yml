@@ -6,7 +6,7 @@ commands:
     description: instant battle op commands
     usage:
   instant:
-    description: instant battle register/unregister
+    description: instant battle player commands
     usage:
   instantdebug:
     description: instant battle debug enabling

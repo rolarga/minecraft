@@ -1,8 +1,8 @@
 package ch.bukkit.playground.instant;
 
 import ch.bukkit.playground.instant.eventhandlers.*;
-import ch.bukkit.playground.instant.model.ArenaConfiguration;
-import ch.bukkit.playground.instant.model.ArenaData;
+import ch.bukkit.playground.instant.model.BattleConfiguration;
+import ch.bukkit.playground.instant.model.BattleData;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.Msg;
 import com.mysql.jdbc.StringUtils;
@@ -51,7 +51,7 @@ public class InstantHandler {
     public void start() {
         // start all valid configured battles
         for (BattleHandler battleHandler : battleHandlers.values()) {
-            if (battleHandler.getArenaConfiguration().isValid()) {
+            if (battleHandler.getBattleConfiguration().isValid()) {
                 battleHandler.start();
             }
         }
@@ -72,25 +72,25 @@ public class InstantHandler {
         }
 
         if ("join".equals(arg1)) {
-            if (battleHandler.getArenaData().addRegisteredPlayer(player)) {
+            if (battleHandler.getBattleData().addRegisteredPlayer(player)) {
                 Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for arena: " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You are blocked for this action.");
             }
         } else if ("leave".equals(arg1)) {
-            if (battleHandler.getArenaData().unregisterPlayer(player) != null) {
+            if (battleHandler.getBattleData().unregisterPlayer(player) != null) {
                 Msg.sendMsg(player, ChatColor.GREEN + "You leaved the instant.");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not registered.");
             }
         } else if ("spec".equals(arg1)) {
-            battleHandler.getArenaData().addSpecator(player, player.getLocation());
-            player.teleport(battleHandler.getArenaConfiguration().getPosSpectator());
+            battleHandler.getBattleData().addSpecator(player, player.getLocation());
+            player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
             Msg.sendMsg(player, ChatColor.GREEN + "You joined the spectator lounge of arena: " + battleHandler.getName() + ".");
         } else if ("unspec".equals(arg1)) {
-            Location loc = battleHandler.getArenaData().getOriginSpectatorLocations().remove(player);
+            Location loc = battleHandler.getBattleData().getOriginSpectatorLocations().remove(player);
             if (loc != null) {
-                player.teleport(battleHandler.getArenaConfiguration().getPosSpectator());
+                player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
                 Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of arena " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
@@ -104,31 +104,31 @@ public class InstantHandler {
         BattleHandler battleHandler = battleHandlers.get(arenaName);
         // if the arena doesnt exist, create it
         if (battleHandler == null) {
-            battleHandler = new BattleHandler(arenaName, new ArenaConfiguration(), new ArenaData());
+            battleHandler = new BattleHandler(arenaName, new BattleConfiguration(), new BattleData());
             battleHandlers.put(arenaName, battleHandler);
         }
 
         if (player != null && "pos1".equals(arg1))
-            battleHandler.getArenaConfiguration().setPos1(player.getLocation());
+            battleHandler.getBattleConfiguration().setPos1(player.getLocation());
         if (player != null && "pos2".equals(arg1))
-            battleHandler.getArenaConfiguration().setPos2(player.getLocation());
+            battleHandler.getBattleConfiguration().setPos2(player.getLocation());
         if (player != null && "posstart".equals(arg1))
-            battleHandler.getArenaConfiguration().setPosStart(player.getLocation());
+            battleHandler.getBattleConfiguration().setPosStart(player.getLocation());
         if (player != null && "posspec".equals(arg1))
-            battleHandler.getArenaConfiguration().setPosSpectator(player.getLocation());
+            battleHandler.getBattleConfiguration().setPosSpectator(player.getLocation());
 
         if ("offset".equals(arg1)) {
             if (StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
                 Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number when the battle notifications should be sent out: '/instantop offset 5' will send first message 5 minutes before the battle starts.");
             }
-            battleHandler.getArenaConfiguration().setOffset(Integer.parseInt(arg2));
+            battleHandler.getBattleConfiguration().setOffset(Integer.parseInt(arg2));
         }
 
         if ("duration".equals(arg1)) {
             if (StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
                 Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number how long the battle should last: '/instantop duration 30' will let the battle be 30 minutes long.");
             }
-            battleHandler.getArenaConfiguration().setDuration(Integer.parseInt(arg2));
+            battleHandler.getBattleConfiguration().setDuration(Integer.parseInt(arg2));
         }
 
         if ("stop".equals(arg1)) {
@@ -145,23 +145,23 @@ public class InstantHandler {
 
         if ("stat".equals(arg1)) {
             Msg.sendMsg(player, "Name: " + arenaName);
-            for (Player p : battleHandler.getArenaData().getRegisteredPlayers()) {
+            for (Player p : battleHandler.getBattleData().getRegisteredPlayers()) {
                 Msg.sendMsg(player, "Registered Player: " + p.getName());
             }
-            for (Player p : battleHandler.getArenaData().getActivePlayers().keySet()) {
+            for (Player p : battleHandler.getBattleData().getActivePlayers().keySet()) {
                 Msg.sendMsg(player, "Active Player: " + p.getName());
             }
-            Msg.sendMsg(player, "End Date: " + DateHelper.format(battleHandler.getArenaData().getEndDate()));
-            if (battleHandler.getArenaData().getEndDate() != null) {
-                Msg.sendMsg(player, "Earliest Next round: " + DateHelper.format(new Date(battleHandler.getArenaData().getEndDate().getTime() + 300000)));
+            Msg.sendMsg(player, "End Date: " + DateHelper.format(battleHandler.getBattleData().getEndDate()));
+            if (battleHandler.getBattleData().getEndDate() != null) {
+                Msg.sendMsg(player, "Earliest Next round: " + DateHelper.format(new Date(battleHandler.getBattleData().getEndDate().getTime() + 300000)));
             }
         }
 
         if ("kick".equals(arg1)) {
             Player target = Bukkit.getPlayer(arg2);
             if (target != null) {
-                battleHandler.getArenaData().unregisterPlayer(target);
-                Location loc = battleHandler.getArenaData().getActivePlayers().remove(target);
+                battleHandler.getBattleData().unregisterPlayer(target);
+                Location loc = battleHandler.getBattleData().getActivePlayers().remove(target);
                 if (loc != null) {
                     target.teleport(loc);
                 }
@@ -173,9 +173,9 @@ public class InstantHandler {
         if ("ban".equals(arg1)) {
             Player target = Bukkit.getPlayer(arg2);
             if (target != null) {
-                battleHandler.getArenaData().addBlockedPlayer(arg2, "Banned by admin/mod: " + playerName);
-                battleHandler.getArenaData().unregisterPlayer(target);
-                Location loc = battleHandler.getArenaData().getActivePlayers().remove(target);
+                battleHandler.getBattleData().addBlockedPlayer(arg2, "Banned by admin/mod: " + playerName);
+                battleHandler.getBattleData().unregisterPlayer(target);
+                Location loc = battleHandler.getBattleData().getActivePlayers().remove(target);
                 if (loc != null) {
                     target.teleport(loc);
                 }
@@ -186,11 +186,11 @@ public class InstantHandler {
         }
 
         if (player != null && "addspawn".equals(arg1)) {
-            battleHandler.getArenaConfiguration().addSpawn(player.getLocation());
+            battleHandler.getBattleConfiguration().addSpawn(player.getLocation());
         }
 
         if ("clearspawn".equals(arg1)) {
-            battleHandler.getArenaConfiguration().getSpanws().clear();
+            battleHandler.getBattleConfiguration().getSpanws().clear();
         }
 
         InstantConfig.saveBattleHandler(battleHandler);
@@ -204,7 +204,7 @@ public class InstantHandler {
         // can handle the event
         if (eventHandler != null) {
             for (BattleHandler battleHandler : battleHandlers.values()) {
-                if (battleHandler.getArenaData().getActivePlayers().containsKey(playerEvent.getPlayer())) {
+                if (battleHandler.getBattleData().getActivePlayers().containsKey(playerEvent.getPlayer())) {
                     eventHandler.processEvent(playerEvent, battleHandler);
                 }
             }
@@ -219,7 +219,7 @@ public class InstantHandler {
         if (eventHandler != null && entityEvent.getEntity().getClass().isAssignableFrom(Player.class)) {
             Player player = (Player) entityEvent.getEntity();
             for (BattleHandler battleHandler : battleHandlers.values()) {
-                if (battleHandler.getArenaData().getActivePlayers().containsKey(player)) {
+                if (battleHandler.getBattleData().getActivePlayers().containsKey(player)) {
                     eventHandler.processEvent(entityEvent, battleHandler, player);
                 }
             }

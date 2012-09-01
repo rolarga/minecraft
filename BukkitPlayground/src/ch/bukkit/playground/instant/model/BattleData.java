@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class ArenaData {
+public class BattleData {
 
     private List<Player> registeredPlayers = new LinkedList<Player>();
     private HashMap<Player, Location> activePlayers = new HashMap<Player, Location>();

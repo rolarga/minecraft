@@ -9,7 +9,7 @@ import org.bukkit.entity.Zombie;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ArenaConfiguration implements Validataeble {
+public class BattleConfiguration implements Validataeble {
 
     private Location pos1;
     private Location pos2;
@@ -22,7 +22,7 @@ public class ArenaConfiguration implements Validataeble {
     private List<Level> levels = new LinkedList<Level>();
     private BattleType battleType = BattleType.COOP;
 
-    public ArenaConfiguration() {
+    public BattleConfiguration() {
         Level level1 = new Level("Welcome to level 1!");
         level1.addRound(getDefaultRound(262, 1));
         level1.addRound(getDefaultRound(262, 2));

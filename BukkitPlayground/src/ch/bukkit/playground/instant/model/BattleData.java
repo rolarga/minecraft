@@ -146,15 +146,4 @@ public class BattleData {
         }
         players.add(player);
     }
-
-    public List<Player> getRegisteredPlayersSortedByLevel() {
-        List<Player> players = new LinkedList<Player>(getRegisteredPlayers());
-        Collections.sort(players, new Comparator<Player>() {
-            @Override
-            public int compare(Player player, Player player1) {
-                return player.getLevel() - player1.getLevel();
-            }
-        });
-        return players;
-    }
 }

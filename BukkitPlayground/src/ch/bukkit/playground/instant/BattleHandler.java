@@ -6,6 +6,7 @@ import ch.bukkit.playground.instant.tasks.MessageTask;
 import ch.bukkit.playground.instant.tasks.SpawnTask;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.LocationHelper;
+import ch.bukkit.playground.util.PlayerUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -66,13 +67,11 @@ public class BattleHandler {
 
                 // move online players
                 int currentGroup = 0;
-                for (Player player : battleData.getRegisteredPlayersSortedByLevel()) {
+                for (Player player : battleData.getRegisteredPlayers()) {
                     if (player.isOnline()) {
                         Location loc = player.getLocation();
                         player.teleport(battleConfiguration.getPosStart());
                         battleData.addActivePlayer(player, loc);
-                        battleData.addPlayerToGroup(0, player);
-                        currentGroup = (currentGroup + 1) % battleConfiguration.getGroups();
 
                         // make player ready for the fight
                         if (!player.isOp()) {
@@ -88,6 +87,7 @@ public class BattleHandler {
                 }
                 battleData.getRegisteredPlayers().clear();
                 battleData.setTotalActivePlayers(battleData.getActivePlayers().size());
+                battleData.setGroups(PlayerUtil.getEqualDistributedGroupByLevel(battleConfiguration.getGroups(), battleData.getActivePlayers().keySet()));
                 InstantConfig.saveBattleHandler(BattleHandler.this);
 
                 new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();

@@ -29,6 +29,7 @@ public class PlayerUtil {
                 groups.put(currentGroup, thisGroup);
             }
             thisGroup.add(sortedPlayers.remove(0));
+            groupSortingState.put(currentGroup, !desc);
         }
 
         return groups;

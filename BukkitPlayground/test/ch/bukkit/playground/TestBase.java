@@ -7,10 +7,10 @@ import java.io.IOException;
 
 public abstract class TestBase {
 
-    protected void setUp() {
+    protected void setUp() throws Exception {
         // delete
         try {
-            FileUtils.forceDelete(Plugin.PLUGIN_DIRECTORY);
+            FileUtils.forceDelete(InstantBattlePlugin.PLUGIN_DIRECTORY);
         } catch (FileNotFoundException fnfe) {
             // thats fine
         } catch (IOException e) {

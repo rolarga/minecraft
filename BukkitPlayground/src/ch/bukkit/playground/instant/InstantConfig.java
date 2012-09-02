@@ -1,6 +1,6 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
 import com.google.gson.Gson;
@@ -34,9 +34,9 @@ public class InstantConfig {
         gson = builder.create();
 
         // Initialize data structure
-        if (!Plugin.PLUGIN_DIRECTORY.exists()) {
+        if (!InstantBattlePlugin.PLUGIN_DIRECTORY.exists()) {
             try {
-                FileUtils.forceMkdir(Plugin.PLUGIN_DIRECTORY);
+                FileUtils.forceMkdir(InstantBattlePlugin.PLUGIN_DIRECTORY);
                 logger.info("InstantBattle plugin folder created!");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -51,8 +51,8 @@ public class InstantConfig {
         try {
             File configFile = new File(getBattleFile(battleHandler) + configFileType);
             File dataFile = new File(getBattleFile(battleHandler) + dataFileType);
-            FileUtils.writeStringToFile(configFile, config, Plugin.CHARSET.name());
-            FileUtils.writeStringToFile(dataFile, data, Plugin.CHARSET.name());
+            FileUtils.writeStringToFile(configFile, config, InstantBattlePlugin.CHARSET.name());
+            FileUtils.writeStringToFile(dataFile, data, InstantBattlePlugin.CHARSET.name());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error while saving model.", e);
             logger.log(Level.SEVERE, config);
@@ -63,11 +63,11 @@ public class InstantConfig {
     public static HashMap<String, BattleHandler> loadBattleHandlers() {
         HashMap<String, BattleHandler> battleHandlers = new HashMap<String, BattleHandler>();
 
-        if (!Plugin.PLUGIN_DIRECTORY.exists()) {
+        if (!InstantBattlePlugin.PLUGIN_DIRECTORY.exists()) {
             return battleHandlers;
         }
 
-        Iterator<File> files = FileUtils.iterateFiles(Plugin.PLUGIN_DIRECTORY, new AbstractFileFilter() {
+        Iterator<File> files = FileUtils.iterateFiles(InstantBattlePlugin.PLUGIN_DIRECTORY, new AbstractFileFilter() {
             @Override
             public boolean accept(File file) {
                 return file.getName().contains(configFileType);
@@ -87,8 +87,8 @@ public class InstantConfig {
             }
 
             try {
-                BattleConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleConfiguration.class);
-                BattleData data = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleData.class);
+                BattleConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleConfiguration.class);
+                BattleData data = gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleData.class);
                 BattleHandler battleHandler = new BattleHandler(battleName, configuration, data);
                 battleHandlers.put(battleName, battleHandler);
             } catch (IOException e) {
@@ -100,6 +100,6 @@ public class InstantConfig {
     }
 
     private static String getBattleFile(BattleHandler battleHandler) {
-        return Plugin.PLUGIN_DIRECTORY.getAbsolutePath() + "/" + battleHandler.getName();
+        return InstantBattlePlugin.PLUGIN_DIRECTORY.getAbsolutePath() + "/" + battleHandler.getName();
     }
 }

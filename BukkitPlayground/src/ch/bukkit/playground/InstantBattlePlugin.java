@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
-public class Plugin extends JavaPlugin {
+public class InstantBattlePlugin extends JavaPlugin {
 
     public final static File PLUGIN_DIRECTORY = new File("./plugins/InstantBattle");
     public final static String PLUGIN_NAME = "InstantBattle";
     public final static Charset CHARSET = Charset.forName("UTF-8");
-    private final static Logger logger = Logger.getLogger("Plugin");
+    private final static Logger logger = Logger.getLogger("InstantBattlePlugin");
 
     public static boolean DEBUG = false;
 
@@ -27,7 +27,7 @@ public class Plugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        logger.info("InstantBattle Plugin enabled!");
+        logger.info("InstantBattle InstantBattlePlugin enabled!");
 
         InitializeLibraries();
 
@@ -85,6 +85,13 @@ public class Plugin extends JavaPlugin {
         if (instantHandler != null) {
             instantHandler.disable();
         }
-        logger.info("InstantBattle Plugin disabled!");
+        logger.info("InstantBattle InstantBattlePlugin disabled!");
+    }
+
+    @Override
+    public String toString() {
+        return "InstantBattlePlugin{" +
+                "instantHandler=" + instantHandler +
+                '}';
     }
 }

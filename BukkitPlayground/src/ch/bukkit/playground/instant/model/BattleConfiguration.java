@@ -11,6 +11,7 @@ import java.util.List;
 
 public class BattleConfiguration implements Validataeble {
 
+    private boolean autostart = false;
     private Location pos1;
     private Location pos2;
     private int offset = 5;
@@ -44,6 +45,14 @@ public class BattleConfiguration implements Validataeble {
         levels.add(level1);
         levels.add(level2);
         levels.add(level3);
+    }
+
+    public boolean isAutostart() {
+        return autostart;
+    }
+
+    public void setAutostart(boolean autostart) {
+        this.autostart = autostart;
     }
 
     public Location getPos1() {
@@ -138,7 +147,7 @@ public class BattleConfiguration implements Validataeble {
     }
 
     public World getWorld() {
-        return pos1.getWorld();
+        return pos1 != null ? pos1.getWorld() : null;
     }
 
     public double getTotalRounds() {

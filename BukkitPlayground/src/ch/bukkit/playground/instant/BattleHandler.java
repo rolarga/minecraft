@@ -185,10 +185,12 @@ public class BattleHandler {
         clearActivePlayersAndTeleportBack();
 
         // clear model
-        for (Entity entity : battleConfiguration.getPos1().getWorld().getEntities()) {
-            if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) &&
-                    LocationHelper.isInSquare(battleConfiguration.getPos1(), battleConfiguration.getPos2(), entity.getLocation())) {
-                entity.remove();
+        if (battleConfiguration.getWorld() != null) {
+            for (Entity entity : battleConfiguration.getWorld().getEntities()) {
+                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) &&
+                        LocationHelper.isInSquare(battleConfiguration.getPos1(), battleConfiguration.getPos2(), entity.getLocation())) {
+                    entity.remove();
+                }
             }
         }
 
@@ -196,7 +198,9 @@ public class BattleHandler {
 
         InstantConfig.saveBattleHandler(this);
 
-        start();
+        if (battleConfiguration.isAutostart()) {
+            start();
+        }
     }
 
     private void giveRewards(Round round) {

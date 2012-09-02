@@ -1,6 +1,6 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.InstantBattlePlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,13 +10,13 @@ import org.bukkit.event.player.*;
 
 public class InstantListener implements Listener {
 
-    private InstantHandler instantHandler;
+    protected InstantHandler instantHandler;
 
     public InstantListener(InstantHandler instantHandler) {
         this.instantHandler = instantHandler;
 
         if (Bukkit.getServer() != null) {
-            Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(Plugin.PLUGIN_NAME));
+            Bukkit.getServer().getPluginManager().registerEvents(this, Bukkit.getPluginManager().getPlugin(InstantBattlePlugin.PLUGIN_NAME));
         }
     }
 

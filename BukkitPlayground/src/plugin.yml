@@ -1,6 +1,6 @@
 name: InstantBattle
 version: 0.0.1
-main: ch.bukkit.playground.Plugin
+main: ch.bukkit.playground.InstantBattlePlugin
 commands:
   instantop:
     description: instant battle op commands

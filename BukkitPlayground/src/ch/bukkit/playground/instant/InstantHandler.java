@@ -25,10 +25,10 @@ public class InstantHandler {
 
     private static Logger logger = Logger.getLogger("InstantHandler");
 
-    HashMap<String, BattleHandler> battleHandlers;
-    InstantListener instantListener;
-    Map<Class<? extends PlayerEvent>, PlayerEventHandler> playerEventHandlers = new HashMap<Class<? extends PlayerEvent>, PlayerEventHandler>();
-    Map<Class<? extends EntityEvent>, EntityEventHandler> entityEventHandlers = new HashMap<Class<? extends EntityEvent>, EntityEventHandler>();
+    protected HashMap<String, BattleHandler> battleHandlers;
+    protected InstantListener instantListener;
+    protected Map<Class<? extends PlayerEvent>, PlayerEventHandler> playerEventHandlers = new HashMap<Class<? extends PlayerEvent>, PlayerEventHandler>();
+    protected Map<Class<? extends EntityEvent>, EntityEventHandler> entityEventHandlers = new HashMap<Class<? extends EntityEvent>, EntityEventHandler>();
 
     public InstantHandler() {
         instantListener = new InstantListener(this);
@@ -93,6 +93,12 @@ public class InstantHandler {
                 Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of battle " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
+            }
+        } else if ("back".equals(arg1) && player != null) {
+            Location location = battleHandler.getBattleData().getOriginSpectatorLocations().get(player);
+            // in case he was a spectator - he can go back
+            if (location != null) {
+                player.teleport(location);
             }
         } else {
             Msg.sendMsg(player, ChatColor.BLUE + "Unknown command: /instant " + arg1 + " " + name);
@@ -159,7 +165,7 @@ public class InstantHandler {
         }
 
         if ("kick".equals(arg1)) {
-            Player target = Bukkit.getPlayer(arg2);
+            Player target = Bukkit.getPlayerExact(arg2);
             if (target != null) {
                 battleHandler.getBattleData().unregisterPlayer(target);
                 Location loc = battleHandler.getBattleData().getActivePlayers().remove(target);

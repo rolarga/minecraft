@@ -9,6 +9,10 @@ public class LocationHelper {
     private static Logger logger = Logger.getLogger("LocationHelper");
 
     public static boolean isInSquare(Location pos1, Location pos2, Location loc) {
+        if (pos1 == null || pos2 == null || loc == null) {
+            return false;
+        }
+
         double squareBottom = Math.min(pos1.getX(), pos2.getX());
         double squareTop = Math.max(pos1.getX(), pos2.getX());
         double squareLeft = Math.min(pos1.getZ(), pos2.getZ());

@@ -12,7 +12,7 @@ public class InstantHandlerTest extends TestBase {
     private InstantHandler instantHandler;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
         instantHandler = new InstantHandler();
         instantHandler.start();

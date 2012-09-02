@@ -1,6 +1,6 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.TestBase;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class InstantConfigTest extends TestBase {
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         super.setUp();
     }
 
@@ -23,7 +23,7 @@ public class InstantConfigTest extends TestBase {
     public void tearDown() throws Exception {
         // delete
         try {
-            FileUtils.forceDelete(Plugin.PLUGIN_DIRECTORY);
+            FileUtils.forceDelete(InstantBattlePlugin.PLUGIN_DIRECTORY);
         } catch (FileNotFoundException fnfe) {
             // thats fine
         }

@@ -1,7 +1,7 @@
 package ch.bukkit.playground.instant.eventhandlers;
 
 
-import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.instant.BattleHandler;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
@@ -26,24 +26,27 @@ public class PlayerRespawnEventHandler implements PlayerEventHandler<PlayerRespa
         Location loc = battleData.getActivePlayers().remove(event.getPlayer());
 
         if (battleConfiguration.getPosSpectator() != null) {
-            if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " respawns at spectator.");
+            if (InstantBattlePlugin.DEBUG)
+                logger.info("Player " + event.getPlayer().getName() + " respawns at spectator.");
 
             // bring player to spectator lounge
             event.setRespawnLocation(battleConfiguration.getPosSpectator());
             battleData.addSpecator(event.getPlayer(), loc);
         } else {
-            if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " respawns at origin.");
+            if (InstantBattlePlugin.DEBUG)
+                logger.info("Player " + event.getPlayer().getName() + " respawns at origin.");
 
             // default points to origin location of this player
             event.setRespawnLocation(loc);
         }
 
         if (MapUtils.isEmpty(battleData.getActivePlayers())) {
-            if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " was last one in battle.");
+            if (InstantBattlePlugin.DEBUG)
+                logger.info("Player " + event.getPlayer().getName() + " was last one in battle.");
 
             battleHandler.finishBattle();
         } else {
-            if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " died.");
+            if (InstantBattlePlugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " died.");
 
             MessageTask messageTask = new MessageTask(battleData.getActivePlayers().keySet(), event.getPlayer().getName() + " died!");
             messageTask.run();

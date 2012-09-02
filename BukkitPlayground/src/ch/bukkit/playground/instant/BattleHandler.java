@@ -25,7 +25,7 @@ public class BattleHandler {
     private BattleData battleData;
     private String name;
 
-    private Timer arenaTimer;
+    private Timer battleTimer;
     private static Logger logger = Logger.getLogger("BattleHandler");
 
 
@@ -48,7 +48,7 @@ public class BattleHandler {
         logger.info("Starting instant battle.");
 
         // create new plain timer
-        arenaTimer = new Timer();
+        battleTimer = new Timer();
 
         Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset()));
         Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 2));
@@ -88,7 +88,7 @@ public class BattleHandler {
                 }
                 battleData.getRegisteredPlayers().clear();
                 battleData.setTotalActivePlayers(battleData.getActivePlayers().size());
-                battleData.setGroups(PlayerUtil.getEqualDistributedGroupByLevel(battleConfiguration.getGroups(), battleData.getActivePlayers().keySet()));
+                battleData.setGroups(PlayerUtil.getEqualDistributedGroupByLevel(battleConfiguration.getGroupAmount(), battleData.getActivePlayers().keySet()));
                 InstantConfig.saveBattleHandler(BattleHandler.this);
 
                 new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
@@ -103,7 +103,7 @@ public class BattleHandler {
             double multiplicator = level.getRoundQuantity() / totalRounds;
             int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(battleConfiguration.getDuration()) * multiplicator, 1);
 
-            // set the arena active when first spawn starts
+            // set the battle active when first spawn starts
             battleData.addTask(new TimerTask() {
                 @Override
                 public void run() {
@@ -114,7 +114,7 @@ public class BattleHandler {
             // add spawns and welcome messages go each level/round
             battleData.addTask(new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
             for (final Round round : level.getRounds()) {
-                for (Map.Entry<Class<? extends Entity>, Integer> mob2Quantity : round.getMobs().entrySet()) {
+                for (Map.Entry<String, Integer> mob2Quantity : round.getMobs().entrySet()) {
                     battleData.addTask(new SpawnTask(battleConfiguration, battleData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
                 }
                 time = new Date(time.getTime() + millisPerRound);
@@ -129,25 +129,25 @@ public class BattleHandler {
             }
         }
 
-        // finishArena at the end
+        // finishBattle at the end
         battleData.addTask(new TimerTask() {
             @Override
             public void run() {
-                finishArena();
+                finishBattle();
             }
         }, battleData.getEndDate());
 
         for (Map.Entry<TimerTask, Date> timerTaskDateEntry : battleData.getTasks().entrySet()) {
-            arenaTimer.schedule(timerTaskDateEntry.getKey(), timerTaskDateEntry.getValue());
+            battleTimer.schedule(timerTaskDateEntry.getKey(), timerTaskDateEntry.getValue());
         }
 
-        // save the finished arena
+        // save the finished battle
         InstantConfig.saveBattleHandler(this);
     }
 
     public void stop() {
-        arenaTimer.cancel();
-        cleanupArena();
+        if (battleTimer != null) battleTimer.cancel();
+        cleanupBattle();
 
         battleData.getRegisteredPlayers().clear();
         clearActivePlayersAndTeleportBack();
@@ -155,14 +155,13 @@ public class BattleHandler {
         logger.info("Timers are stopped, battle is over.");
 
         InstantConfig.saveBattleHandler(this);
-
     }
 
     // distribute rewards
     // delete spawned mobs
     // delete dropped items
     // delete dropped exp
-    public void finishArena() {
+    public void finishBattle() {
         boolean allMobsDead = true;
 
         for (Entity entity : battleData.getSpawnedMobs()) {
@@ -193,7 +192,7 @@ public class BattleHandler {
             }
         }
 
-        cleanupArena();
+        cleanupBattle();
 
         InstantConfig.saveBattleHandler(this);
 
@@ -215,7 +214,7 @@ public class BattleHandler {
         }
     }
 
-    private void cleanupArena() {
+    private void cleanupBattle() {
         for (TimerTask timerTask : battleData.getTasks().keySet()) {
             timerTask.cancel();
         }

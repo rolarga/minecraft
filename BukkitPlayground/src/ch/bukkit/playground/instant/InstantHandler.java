@@ -33,7 +33,7 @@ public class InstantHandler {
     public InstantHandler() {
         instantListener = new InstantListener(this);
 
-        // Load arena handlers
+        // Load battle handlers
         battleHandlers = InstantConfig.loadBattleHandlers();
 
         // Initialize player event handlers
@@ -59,53 +59,52 @@ public class InstantHandler {
 
     public void handlePlayerCommands(String name, String arg1, Player player) {
         if ("list".equals(arg1)) {
-            Msg.sendMsg(player, ChatColor.YELLOW + "Available Arenas: " + getArenaNames());
+            Msg.sendMsg(player, ChatColor.YELLOW + "Available Battles: " + getBattleNames());
             return;
         }
 
         BattleHandler battleHandler = battleHandlers.get(name);
 
         if (battleHandler == null) {
-            String arenaNames = getArenaNames();
-            Msg.sendMsg(player, ChatColor.RED + "Arena was not found. Available arenas are: " + arenaNames);
+            Msg.sendMsg(player, ChatColor.RED + "Battle was not found. Available battles are: " + getBattleNames());
             return;
         }
 
-        if ("join".equals(arg1)) {
+        if ("join".equals(arg1) && player != null) {
             if (battleHandler.getBattleData().addRegisteredPlayer(player)) {
-                Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for arena: " + battleHandler.getName() + ".");
+                Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for battle: " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You are blocked for this action.");
             }
-        } else if ("leave".equals(arg1)) {
+        } else if ("leave".equals(arg1) && player != null) {
             if (battleHandler.getBattleData().unregisterPlayer(player) != null) {
                 Msg.sendMsg(player, ChatColor.GREEN + "You leaved the instant.");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not registered.");
             }
-        } else if ("spec".equals(arg1)) {
+        } else if ("spec".equals(arg1) && player != null) {
             battleHandler.getBattleData().addSpecator(player, player.getLocation());
             player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
-            Msg.sendMsg(player, ChatColor.GREEN + "You joined the spectator lounge of arena: " + battleHandler.getName() + ".");
-        } else if ("unspec".equals(arg1)) {
+            Msg.sendMsg(player, ChatColor.GREEN + "You joined the spectator lounge of battle: " + battleHandler.getName() + ".");
+        } else if ("unspec".equals(arg1) && player != null) {
             Location loc = battleHandler.getBattleData().getOriginSpectatorLocations().remove(player);
             if (loc != null) {
                 player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
-                Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of arena " + battleHandler.getName() + ".");
+                Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of battle " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
             }
         }
     }
 
-    public void handleOpCommands(String arenaName, String arg1, String arg2, Player player) {
+    public void handleOpCommands(String batlleName, String arg1, String arg2, Player player) {
         String playerName = player != null ? player.getName() : "CONSOLE";
 
-        BattleHandler battleHandler = battleHandlers.get(arenaName);
-        // if the arena doesnt exist, create it
+        BattleHandler battleHandler = battleHandlers.get(batlleName);
+        // if the battle doesnt exist, create it
         if (battleHandler == null) {
-            battleHandler = new BattleHandler(arenaName, new BattleConfiguration(), new BattleData());
-            battleHandlers.put(arenaName, battleHandler);
+            battleHandler = new BattleHandler(batlleName, new BattleConfiguration(), new BattleData());
+            battleHandlers.put(batlleName, battleHandler);
         }
 
         if (player != null && "pos1".equals(arg1))
@@ -136,15 +135,15 @@ public class InstantHandler {
         }
 
         if ("start".equals(arg1)) {
-            // make sure the arena is not already running
+            // make sure the battle is not already running
             battleHandler.stop();
             battleHandler.start();
-            // start the arena
+            // start the battle
             InstantConfig.saveBattleHandler(battleHandler);
         }
 
         if ("stat".equals(arg1)) {
-            Msg.sendMsg(player, "Name: " + arenaName);
+            Msg.sendMsg(player, "Name: " + batlleName);
             for (Player p : battleHandler.getBattleData().getRegisteredPlayers()) {
                 Msg.sendMsg(player, "Registered Player: " + p.getName());
             }
@@ -194,7 +193,7 @@ public class InstantHandler {
         }
 
         InstantConfig.saveBattleHandler(battleHandler);
-        Msg.sendMsg(player, ChatColor.YELLOW + "Arena '" + arenaName + "' command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " by " + playerName);
+        Msg.sendMsg(player, ChatColor.YELLOW + "Battle '" + batlleName + "' command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " by " + playerName);
     }
 
     @SuppressWarnings("unchecked")
@@ -213,6 +212,9 @@ public class InstantHandler {
 
     @SuppressWarnings("unchecked")
     public void handleEntityEvents(EntityEvent entityEvent) {
+        if (entityEvent == null) return;
+        if (entityEvent.getEntity() == null) return;
+
         EntityEventHandler eventHandler = entityEventHandlers.get(entityEvent.getClass());
 
         // can handle the event
@@ -236,14 +238,17 @@ public class InstantHandler {
 
     // Helper methods
 
-    private String getArenaNames() {
-        String arenaNames = "";
+    private String getBattleNames() {
+        String batlleNames = "";
         for (String s : battleHandlers.keySet()) {
-            if (!StringUtils.isNullOrEmpty(arenaNames)) {
-                arenaNames += ", ";
+            if (!StringUtils.isNullOrEmpty(batlleNames)) {
+                batlleNames += ", ";
             }
-            arenaNames += s;
+            batlleNames += s;
         }
-        return arenaNames;
+        if (StringUtils.isNullOrEmpty(batlleNames)) {
+            return "None";
+        }
+        return batlleNames;
     }
 }

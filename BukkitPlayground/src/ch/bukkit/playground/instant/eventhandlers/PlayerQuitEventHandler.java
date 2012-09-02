@@ -22,7 +22,7 @@ public class PlayerQuitEventHandler implements PlayerEventHandler<PlayerQuitEven
             quit.getPlayer().teleport(loc);
 
             if (MapUtils.isEmpty(battleHandler.getBattleData().getActivePlayers())) {
-                battleHandler.finishArena();
+                battleHandler.finishBattle();
             } else {
                 MessageTask messageTask = new MessageTask(battleHandler.getBattleData().getActivePlayers().keySet(), quit.getPlayer().getName() + " logged out - did he cheat on you?");
                 messageTask.run();

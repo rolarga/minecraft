@@ -17,7 +17,7 @@ public class BattleConfiguration implements Validataeble {
     private int duration = 30;
     private Location posStart;
     private Location posSpectator;
-    private int groups = 1;
+    private int groupAmount = 1;
     private List<Location> spanws = new LinkedList<Location>();
     private List<Level> levels = new LinkedList<Level>();
     private BattleType battleType = BattleType.COOP;
@@ -118,16 +118,16 @@ public class BattleConfiguration implements Validataeble {
         this.battleType = battleType;
     }
 
-    public int getGroups() {
-        return groups;
+    public int getGroupAmount() {
+        return groupAmount;
     }
 
-    public void setGroups(int groups) {
-        this.groups = groups;
+    public void setGroupAmount(int groupAmount) {
+        this.groupAmount = groupAmount;
     }
 
     /**
-     * @return compelete duration of an arena run + 1 minute to ensure small break and minimum duration
+     * @return compelete duration of an battle run + 1 minute to ensure small break and minimum duration
      */
     public int getCompleteRunDuration() {
         return 1 + offset + duration;
@@ -153,9 +153,9 @@ public class BattleConfiguration implements Validataeble {
 
     private Round getDefaultRound(int itemId, int factor) {
         Round round1 = new Round();
-        round1.addMob(Zombie.class, 2 * factor);
-        round1.addMob(Golem.class, 2 * factor);
-        round1.addMob(Spider.class, 2 * factor);
+        round1.addMob(Zombie.class.getSimpleName(), 2 * factor);
+        round1.addMob(Golem.class.getSimpleName(), 2 * factor);
+        round1.addMob(Spider.class.getSimpleName(), 2 * factor);
         round1.addReward(itemId, 2 * factor);
         return round1;
     }

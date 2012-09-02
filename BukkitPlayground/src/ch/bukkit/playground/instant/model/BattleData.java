@@ -78,7 +78,7 @@ public class BattleData {
     // Helper methods
 
     public boolean addRegisteredPlayer(Player player) {
-        if (blockedPlayers.containsKey(player.getName())) {
+        if (player == null || blockedPlayers.containsKey(player.getName())) {
             return false;
         }
         if (!registeredPlayers.contains(player)) {

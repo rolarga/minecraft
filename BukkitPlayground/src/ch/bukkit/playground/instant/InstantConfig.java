@@ -20,10 +20,11 @@ import java.util.logging.Logger;
  */
 public class InstantConfig {
 
-    private static Logger logger = Logger.getLogger("InstantConfig");
+    private final static Logger logger = Logger.getLogger("InstantConfig");
+    private final static String configFileType = ".bcon";
+    private final static String dataFileType = ".bdat";
 
     private static Gson gson;
-    private static File directory = new File("./plugins/InstantBattle");
 
     static {
         GsonBuilder builder = new GsonBuilder();
@@ -33,9 +34,12 @@ public class InstantConfig {
         gson = builder.create();
 
         // Initialize data structure
-        if (!directory.exists()) {
-            if (directory.mkdir()) {
+        if (!Plugin.PLUGIN_DIRECTORY.exists()) {
+            try {
+                FileUtils.forceMkdir(Plugin.PLUGIN_DIRECTORY);
                 logger.info("InstantBattle plugin folder created!");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -45,8 +49,8 @@ public class InstantConfig {
         String data = gson.toJson(battleHandler.getBattleData());
 
         try {
-            File configFile = new File(getBattleFile(battleHandler) + ".bcon");
-            File dataFile = new File(getBattleFile(battleHandler) + ".bdat");
+            File configFile = new File(getBattleFile(battleHandler) + configFileType);
+            File dataFile = new File(getBattleFile(battleHandler) + dataFileType);
             FileUtils.writeStringToFile(configFile, config, Plugin.CHARSET.name());
             FileUtils.writeStringToFile(dataFile, data, Plugin.CHARSET.name());
         } catch (IOException e) {
@@ -57,41 +61,45 @@ public class InstantConfig {
     }
 
     public static HashMap<String, BattleHandler> loadBattleHandlers() {
-        HashMap<String, BattleHandler> arenaHandlerTasks = new HashMap<String, BattleHandler>();
+        HashMap<String, BattleHandler> battleHandlers = new HashMap<String, BattleHandler>();
 
-        Iterator<File> files = FileUtils.iterateFiles(directory, new AbstractFileFilter() {
+        if (!Plugin.PLUGIN_DIRECTORY.exists()) {
+            return battleHandlers;
+        }
+
+        Iterator<File> files = FileUtils.iterateFiles(Plugin.PLUGIN_DIRECTORY, new AbstractFileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.getName().contains("acon");
+                return file.getName().contains(configFileType);
             }
         }, null);
 
         while (files.hasNext()) {
             File configFile = files.next();
-            String arenaName = configFile.getName().replace(".acon", "");
-            File dataFile = new File(configFile.getParent() + "/" + arenaName + ".adat");
+            String battleName = configFile.getName().replace(configFileType, "");
+            File dataFile = new File(configFile.getParent() + "/" + battleName + dataFileType);
             try {
                 if (dataFile.createNewFile()) {
-                    logger.info("Created data file for arena: " + arenaName);
+                    logger.info("Created data file for battle: " + battleName);
                 }
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "IO Exception while loading configuration and data", e);
+                logger.log(Level.SEVERE, "IO Exception while loading configuration and data files.", e);
             }
 
             try {
                 BattleConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleConfiguration.class);
                 BattleData data = gson.fromJson(FileUtils.readFileToString(configFile, Plugin.CHARSET.name()), BattleData.class);
-                BattleHandler battleHandler = new BattleHandler(arenaName, configuration, data);
-                arenaHandlerTasks.put(arenaName, battleHandler);
+                BattleHandler battleHandler = new BattleHandler(battleName, configuration, data);
+                battleHandlers.put(battleName, battleHandler);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error while loading arenas.", e);
+                logger.log(Level.SEVERE, "Error while loading battles.", e);
             }
         }
 
-        return arenaHandlerTasks;
+        return battleHandlers;
     }
 
     private static String getBattleFile(BattleHandler battleHandler) {
-        return directory.getAbsolutePath() + "/" + battleHandler.getName();
+        return Plugin.PLUGIN_DIRECTORY.getAbsolutePath() + "/" + battleHandler.getName();
     }
 }

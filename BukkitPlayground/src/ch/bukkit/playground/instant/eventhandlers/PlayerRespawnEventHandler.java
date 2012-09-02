@@ -41,7 +41,7 @@ public class PlayerRespawnEventHandler implements PlayerEventHandler<PlayerRespa
         if (MapUtils.isEmpty(battleData.getActivePlayers())) {
             if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " was last one in battle.");
 
-            battleHandler.finishArena();
+            battleHandler.finishBattle();
         } else {
             if (Plugin.DEBUG) logger.info("Player " + event.getPlayer().getName() + " died.");
 

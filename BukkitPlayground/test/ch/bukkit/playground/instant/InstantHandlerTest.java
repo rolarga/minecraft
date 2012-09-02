@@ -1,17 +1,19 @@
 package ch.bukkit.playground.instant;
 
+import ch.bukkit.playground.TestBase;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InstantHandlerTest {
+public class InstantHandlerTest extends TestBase {
 
     private InstantHandler instantHandler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        super.setUp();
         instantHandler = new InstantHandler();
         instantHandler.start();
     }

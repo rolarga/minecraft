@@ -94,6 +94,8 @@ public class InstantHandler {
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
             }
+        } else {
+            Msg.sendMsg(player, ChatColor.BLUE + "Unknown command: /instant " + arg1 + " " + name);
         }
     }
 

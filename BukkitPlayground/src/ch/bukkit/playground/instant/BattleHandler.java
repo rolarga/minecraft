@@ -4,6 +4,7 @@ import ch.bukkit.playground.instant.model.*;
 import ch.bukkit.playground.instant.tasks.BroadcastTask;
 import ch.bukkit.playground.instant.tasks.MessageTask;
 import ch.bukkit.playground.instant.tasks.SpawnTask;
+import ch.bukkit.playground.interfaces.thirdparty.EconomyApi;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.LocationHelper;
 import ch.bukkit.playground.util.PlayerUtil;
@@ -204,7 +205,10 @@ public class BattleHandler {
             if (!activePlayer.getKey().isDead()) {
                 List<ItemStack> itemStacks = new LinkedList<ItemStack>();
                 for (Reward reward : round.getRewards()) {
-                    itemStacks.add(new ItemStack(reward.getId(), reward.getQuantity()));
+                    if (reward.getId() > 0) {
+                        itemStacks.add(new ItemStack(reward.getId(), reward.getQuantity()));
+                    }
+                    EconomyApi.add(activePlayer.getKey(), reward.getMoney());
                 }
                 activePlayer.getKey().getInventory().addItem(itemStacks.toArray(new ItemStack[itemStacks.size()]));
             }

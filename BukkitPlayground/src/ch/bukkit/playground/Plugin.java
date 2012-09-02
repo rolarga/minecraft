@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 public class Plugin extends JavaPlugin {
 
-
     public static final String PLUGIN_NAME = "InstantBattle";
     public static final Charset CHARSET = Charset.forName("UTF-8");
     public static boolean DEBUG = false;
@@ -38,6 +37,7 @@ public class Plugin extends JavaPlugin {
             ClassPathHack.addFile("./lib/commons-collections-3.2.1.jar");
             ClassPathHack.addFile("./lib/commons-dbutils-1.3.jar");
             ClassPathHack.addFile("./lib/commons-io-2.1.jar");
+            ClassPathHack.addFile("./lib/gson-2.2.2.jar");
             ClassPathHack.addFile("./lib/gson-2.2.2.jar");
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,6 +1,7 @@
 package ch.bukkit.playground.instant;
 
 import ch.bukkit.playground.Plugin;
+import ch.bukkit.playground.TestBase;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
 import org.apache.commons.io.FileUtils;
@@ -11,10 +12,11 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-public class InstantConfigTest {
+public class InstantConfigTest extends TestBase {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        super.setUp();
     }
 
     @After

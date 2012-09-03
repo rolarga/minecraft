@@ -3,6 +3,7 @@ package ch.bukkit.playground.instant.tasks;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
 import ch.bukkit.playground.util.EntityHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -33,18 +34,18 @@ public class SpawnTask extends TimerTask {
         if (entityClass != null) {
             int quantity = battleData.getTotalActivePlayers() * round;
             for (int i = 0; i < quantity; i++) {
-                int rnd = ((int) (Math.random() * 1000)) % battleConfiguration.getSpanws().size();
-                Location loc = battleConfiguration.getSpanws().get(rnd);
-                if (loc == null) {
+                Location loc;
+                if (CollectionUtils.isNotEmpty(battleConfiguration.getSpanws())) {
+                    int rnd = ((int) (Math.random() * 1000)) % battleConfiguration.getSpanws().size();
+                    loc = battleConfiguration.getSpanws().get(rnd);
+                } else {
                     loc = battleConfiguration.getPosStart();
                 }
 
                 Entity e = battleConfiguration.getWorld().spawn(loc, entityClass);
                 battleData.addSpawnedMob(e);
             }
-
-            MessageTask messageTask = new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Spawned " + quantity + " " + entity + " monsters. Have fun killing them.");
-            messageTask.run();
+            new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Spawned " + quantity + " " + entity + " monsters. Have fun killing them.").run();
         }
     }
 }

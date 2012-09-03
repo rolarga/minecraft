@@ -2,8 +2,8 @@ package ch.bukkit.playground.helper;
 
 public class OpTestPlayer extends TestPlayer {
 
-    public OpTestPlayer(String name) {
-        super(name);
+    public OpTestPlayer(String name, int level) {
+        super(name, level);
     }
 
     @Override

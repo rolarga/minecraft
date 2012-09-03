@@ -226,7 +226,7 @@ public class InstantHandler {
         EntityEventHandler eventHandler = entityEventHandlers.get(entityEvent.getClass());
 
         // can handle the event
-        if (eventHandler != null && entityEvent.getEntity().getClass().isAssignableFrom(Player.class)) {
+        if (eventHandler != null && Player.class.isAssignableFrom(entityEvent.getEntity().getClass())) {
             Player player = (Player) entityEvent.getEntity();
             for (BattleHandler battleHandler : battleHandlers.values()) {
                 if (battleHandler.getBattleData().getActivePlayers().containsKey(player)) {
@@ -258,5 +258,9 @@ public class InstantHandler {
             return "None";
         }
         return batlleNames;
+    }
+
+    public HashMap<String, BattleHandler> getBattleHandlers() {
+        return battleHandlers;
     }
 }

@@ -24,14 +24,14 @@ public class PlayerQuitEventHandler implements PlayerEventHandler<PlayerQuitEven
             if (MapUtils.isEmpty(battleHandler.getBattleData().getActivePlayers())) {
                 battleHandler.finishBattle();
             } else {
-                MessageTask messageTask = new MessageTask(battleHandler.getBattleData().getActivePlayers().keySet(), quit.getPlayer().getName() + " logged out - did he cheat on you?");
-                messageTask.run();
+                new MessageTask(battleHandler.getBattleData().getActivePlayers().keySet(), quit.getPlayer().getName() + " logged out - did he cheat on you?").run();
             }
+        }
 
-            if (quit.getPlayer().getHealth() <= 4) {
-                battleHandler.getBattleData().addBlockedPlayer(quit.getPlayer().getName(), "Player left because of low health.");
-                quit.getPlayer().getInventory().clear();
-            }
+        // punish all idiots
+        if (!quit.getPlayer().isOp() && quit.getPlayer().getHealth() <= 4) {
+            battleHandler.getBattleData().addBlockedPlayer(quit.getPlayer().getName(), "Player left because of low health.");
+            quit.getPlayer().getInventory().clear();
         }
     }
 }

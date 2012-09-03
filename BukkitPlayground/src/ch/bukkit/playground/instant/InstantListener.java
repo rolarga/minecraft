@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.*;
 
@@ -43,6 +44,11 @@ public class InstantListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void entityDeathEvent(EntityDeathEvent death) {
         instantHandler.handleEntityEvents(death);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void entityDamageEvent(EntityDamageByEntityEvent damage) {
+        instantHandler.handleEntityEvents(damage);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

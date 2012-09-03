@@ -34,8 +34,9 @@ public class TestPlayer implements Player {
     private int level;
     private PlayerInventory inventory = new TestInventory();
 
-    public TestPlayer(String name) {
+    public TestPlayer(String name, int level) {
         this.name = name;
+        this.level = level;
     }
 
     @Override
@@ -943,5 +944,14 @@ public class TestPlayer implements Player {
     @Override
     public void setOp(boolean value) {
 
+    }
+
+    @Override
+    public String toString() {
+        return "TestPlayer{" +
+                "name='" + name + '\'' +
+                ", exp=" + exp +
+                ", level=" + level +
+                '}';
     }
 }

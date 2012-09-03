@@ -28,7 +28,10 @@ public class PlayerUtil {
                 thisGroup = new LinkedList<Player>();
                 groups.put(currentGroup, thisGroup);
             }
-            thisGroup.add(sortedPlayers.remove(0));
+            Player playerToAdd = sortedPlayers.remove(0);
+            thisGroup.add(playerToAdd);
+            playersToSort = sortedPlayers;
+
             groupSortingState.put(currentGroup, !desc);
         }
 
@@ -39,11 +42,11 @@ public class PlayerUtil {
         List<Player> playersSorted = new LinkedList<Player>(players);
         Collections.sort(playersSorted, new Comparator<Player>() {
             @Override
-            public int compare(Player player, Player player1) {
+            public int compare(Player p1, Player p2) {
                 if (!desc) {
-                    return player.getLevel() - player1.getLevel();
+                    return p1.getLevel() - p2.getLevel();
                 }
-                return player1.getLevel() - player1.getLevel();
+                return p2.getLevel() - p1.getLevel();
             }
         });
         return playersSorted;

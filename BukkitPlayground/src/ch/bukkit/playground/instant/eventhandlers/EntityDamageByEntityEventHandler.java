@@ -11,7 +11,7 @@ public class EntityDamageByEntityEventHandler implements EntityEventHandler<Enti
     @Override
     public void processEvent(EntityDamageByEntityEvent event, BattleHandler battleHandler, Player player) {
         if (battleHandler.getBattleData().isActive()) {
-            if (event.getDamager().getClass().isAssignableFrom(Player.class)) {
+            if (Player.class.isAssignableFrom(event.getDamager().getClass())) {
                 Player damager = (Player) event.getDamager();
 
                 switch (battleHandler.getBattleConfiguration().getBattleType()) {

@@ -1,5 +1,7 @@
 package ch.bukkit.playground.instant.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class Level implements Validataeble {
         this.rounds = rounds;
     }
 
+    @JsonIgnore
     public double getRoundQuantity() {
         return (double) rounds.size();
     }
@@ -40,9 +43,9 @@ public class Level implements Validataeble {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean checkValidity() {
         for (Round round : rounds) {
-            if(!round.isValid()) return false;
+            if (!round.checkValidity()) return false;
         }
 
         return true;

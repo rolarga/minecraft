@@ -16,8 +16,7 @@ public class SpawnTaskTest extends TestBase {
     public void testSpawnMobs() throws Exception {
         battleHandler.getBattleConfiguration().setPos1(originLocation);
         battleHandler.getBattleConfiguration().setPosStart(originLocation);
-        SpawnTask spawnTask = new SpawnTask(battleHandler.getBattleConfiguration(), battleHandler.getBattleData(), "Zombie", 10);
-        spawnTask.run();
+        new SpawnTask(battleHandler.getBattleConfiguration(), battleHandler.getBattleData(), "Zombie", 10).run();
 
         // spawns 10 for each active players --> 10 * 4
         assert battleHandler.getBattleData().getSpawnedMobs().size() == (10 * 4);

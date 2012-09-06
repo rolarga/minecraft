@@ -1,5 +1,10 @@
 package ch.bukkit.playground.instant.model;
 
+import ch.bukkit.playground.instant.model.serializer.PlayerList;
+import ch.bukkit.playground.instant.model.serializer.PlayerLocationMap;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -8,13 +13,31 @@ import java.util.*;
 
 public class BattleData {
 
+    @JsonSerialize(using = PlayerList.Serializer.class)
+    @JsonDeserialize(using = PlayerList.Deserializer.class)
     private List<Player> registeredPlayers = new LinkedList<Player>();
+
+    @JsonSerialize(using = PlayerLocationMap.Serializer.class)
+    @JsonDeserialize(using = PlayerLocationMap.Deserializer.class)
     private HashMap<Player, Location> activePlayers = new HashMap<Player, Location>();
+
+    @JsonSerialize(using = PlayerLocationMap.Serializer.class)
+    @JsonDeserialize(using = PlayerLocationMap.Deserializer.class)
     private Map<String, String> blockedPlayers = new HashMap<String, String>();
+
+    @JsonIgnore
     private List<Entity> spawnedMobs = new LinkedList<Entity>();
+
+    @JsonSerialize(using = PlayerLocationMap.Serializer.class)
+    @JsonDeserialize(using = PlayerLocationMap.Deserializer.class)
     private HashMap<Player, Location> originSpectatorLocations = new HashMap<Player, Location>();
+
+    @JsonIgnore
     private Map<TimerTask, Date> tasks = new HashMap<TimerTask, Date>();
+
+    @JsonIgnore
     private Map<Integer, List<Player>> groups = new HashMap<Integer, List<Player>>();
+
     private int totalActivePlayers;
     private Date endDate;
     private boolean active;

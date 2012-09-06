@@ -1,15 +1,11 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.TestBase;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.util.Map;
 
 public class InstantConfigTest extends TestBase {
@@ -17,16 +13,7 @@ public class InstantConfigTest extends TestBase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        // delete
-        try {
-            FileUtils.forceDelete(InstantBattlePlugin.PLUGIN_DIRECTORY);
-        } catch (FileNotFoundException fnfe) {
-            // thats fine
-        }
+        loadInstantBattle();
     }
 
     @Test
@@ -43,7 +30,8 @@ public class InstantConfigTest extends TestBase {
 
     @Test
     public void testSaveAndLoadBattleHandler() throws Exception {
-        BattleHandler battleHandler = new BattleHandler("test", new BattleConfiguration(), new BattleData());
+        battleHandler.getBattleData().addRegisteredPlayer(player);
+        battleHandler.getBattleData().addRegisteredPlayer(player2);
         InstantConfig.saveBattleHandler(battleHandler);
 
         Map<String, BattleHandler> battleHandlers = InstantConfig.loadBattleHandlers();

@@ -38,9 +38,9 @@ public class Round implements Validataeble {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean checkValidity() {
         for (Reward reward : rewards) {
-            if (!reward.isValid()) return false;
+            if (!reward.checkValidity()) return false;
         }
 
         // we do not want to fail becuase just one name was wrong

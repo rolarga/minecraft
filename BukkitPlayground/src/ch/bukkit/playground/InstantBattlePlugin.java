@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class InstantBattlePlugin extends JavaPlugin {
 
-    public final static File PLUGIN_DIRECTORY = new File("./plugins/InstantBattle");
+    public final static File PLUGIN_DIRECTORY = new File("plugins/InstantBattle/");
     public final static String PLUGIN_NAME = "InstantBattle";
     public final static Charset CHARSET = Charset.forName("UTF-8");
     private final static Logger logger = Logger.getLogger("InstantBattlePlugin");
@@ -40,8 +40,9 @@ public class InstantBattlePlugin extends JavaPlugin {
             ClassPathHack.addFile("./lib/commons-collections-3.2.1.jar");
             ClassPathHack.addFile("./lib/commons-dbutils-1.3.jar");
             ClassPathHack.addFile("./lib/commons-io-2.1.jar");
-            ClassPathHack.addFile("./lib/gson-2.2.2.jar");
-            ClassPathHack.addFile("./lib/gson-2.2.2.jar");
+            ClassPathHack.addFile("./lib/jackson-core-2.0.5.jar");
+            ClassPathHack.addFile("./lib/jackson-databind-2.0.5.jar");
+            ClassPathHack.addFile("./lib/jackson-annotations-2.0.5.jar");
         } catch (IOException e) {
             e.printStackTrace();
         }

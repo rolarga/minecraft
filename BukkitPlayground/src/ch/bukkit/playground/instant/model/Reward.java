@@ -39,7 +39,7 @@ public class Reward implements Validataeble {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean checkValidity() {
         return (id > 0 && quantity > 0) || money > 0;
     }
 }

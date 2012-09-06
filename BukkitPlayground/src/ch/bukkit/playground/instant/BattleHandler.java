@@ -126,6 +126,8 @@ public class BattleHandler {
                         giveRewards(round);
                     }
                 }, time);
+
+                battleData.setEndDate(time);
             }
         }
 

@@ -26,10 +26,24 @@ public class TestServer implements Server {
     private BukkitScheduler scheduler = new CraftScheduler();
     private PluginManager pluginManager = new SimplePluginManager(this, new SimpleCommandMap(this));
     private ServicesManager serviceManager = new SimpleServicesManager();
+    private List<Player> players = new LinkedList<Player>();
+    private World world;
 
     Logger logger = Logger.getLogger("TestServer");
 
-    @SuppressWarnings("unchecked")
+    public void addPlayer(Player player) {
+        if (players.contains(player)) return;
+        players.add(player);
+    }
+
+    public void clearPlayers() {
+        players.clear();
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
     public TestServer() throws Exception {
     }
 
@@ -156,17 +170,22 @@ public class TestServer implements Server {
 
     @Override
     public Player getPlayer(String name) {
+        for (Player player : players) {
+            if (player.getName().equals(name)) {
+                return player;
+            }
+        }
         return null;
     }
 
     @Override
     public Player getPlayerExact(String name) {
-        return null;
+        return getPlayer(name);
     }
 
     @Override
     public List<Player> matchPlayer(String name) {
-        return null;
+        return Arrays.asList(getPlayer(name));
     }
 
     @Override
@@ -186,7 +205,7 @@ public class TestServer implements Server {
 
     @Override
     public List<World> getWorlds() {
-        return new LinkedList<World>();
+        return Arrays.asList(world);
     }
 
     @Override
@@ -206,12 +225,12 @@ public class TestServer implements Server {
 
     @Override
     public World getWorld(String name) {
-        return null;
+        return world;
     }
 
     @Override
     public World getWorld(UUID uid) {
-        return null;
+        return world;
     }
 
     @Override

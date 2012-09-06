@@ -33,10 +33,16 @@ public class TestPlayer implements Player {
     private int exp;
     private int level;
     private PlayerInventory inventory = new TestInventory();
+    private Location location;
 
     public TestPlayer(String name, int level) {
         this.name = name;
         this.level = level;
+    }
+
+    public TestPlayer(String name, int level, Location location) {
+        this(name, level);
+        this.location = location;
     }
 
     @Override
@@ -321,7 +327,7 @@ public class TestPlayer implements Player {
 
     @Override
     public Location getBedSpawnLocation() {
-        return null;
+        return location;
     }
 
     @Override
@@ -548,7 +554,7 @@ public class TestPlayer implements Player {
 
     @Override
     public Location getEyeLocation() {
-        return null;
+        return location;
     }
 
     @Override
@@ -688,7 +694,7 @@ public class TestPlayer implements Player {
 
     @Override
     public Location getLocation() {
-        return null;
+        return location;
     }
 
     @Override
@@ -708,17 +714,18 @@ public class TestPlayer implements Player {
 
     @Override
     public boolean teleport(Location location) {
-        return false;
+        this.location = location;
+        return true;
     }
 
     @Override
     public boolean teleport(Location location, PlayerTeleportEvent.TeleportCause cause) {
-        return false;
+        return teleport(location);
     }
 
     @Override
     public boolean teleport(Entity destination) {
-        return false;
+        return teleport(destination.getLocation());
     }
 
     @Override

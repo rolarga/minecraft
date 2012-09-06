@@ -42,7 +42,6 @@ public abstract class TestBase {
         if (Bukkit.getServer() == null) {
             TestServer testServer = new TestServer();
             Bukkit.setServer(testServer);
-            Bukkit.getServer().getWorlds().add(world);
         }
         plugin = new TestPlugin(Bukkit.getServer());
         Bukkit.getServer().getPluginManager().enablePlugin(plugin);
@@ -50,12 +49,20 @@ public abstract class TestBase {
         instantHandler = new InstantHandler();
 
         // setup basic test data
-        player = new TestPlayer("tester", 10);
-        player2 = new TestPlayer("tester2", 5);
-        vip = new VipTestPlayer("viptester", 20);
-        op = new OpTestPlayer("optester", 100);
         world = new TestWorld();
         originLocation = new Location(world, 1, 1, 1);
+        player = new TestPlayer("tester", 10, originLocation);
+        player2 = new TestPlayer("tester2", 5, originLocation);
+        vip = new VipTestPlayer("viptester", 20, originLocation);
+        op = new OpTestPlayer("optester", 100, originLocation);
+
+        TestServer testServer = (TestServer) Bukkit.getServer();
+        testServer.clearPlayers();
+        testServer.addPlayer(player);
+        testServer.addPlayer(player2);
+        testServer.addPlayer(op);
+        testServer.addPlayer(vip);
+        testServer.setWorld(world);
 
         battleHandler = new BattleHandler("test", new BattleConfiguration(), new BattleData());
 

@@ -3,13 +3,14 @@ package ch.bukkit.playground.instant;
 import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -23,16 +24,15 @@ public class InstantConfig {
     private final static Logger logger = Logger.getLogger("InstantConfig");
     private final static String configFileType = ".bcon";
     private final static String dataFileType = ".bdat";
-
-    private static Gson gson;
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     static {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        builder.disableHtmlEscaping();
-        builder.serializeNulls();
-        gson = builder.create();
+        forceCreate();
+        StringWriter writer = new StringWriter();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
 
+    public static void forceCreate() {
         // Initialize data structure
         if (!InstantBattlePlugin.PLUGIN_DIRECTORY.exists()) {
             try {
@@ -45,22 +45,28 @@ public class InstantConfig {
     }
 
     public static void saveBattleHandler(BattleHandler battleHandler) {
-        String config = gson.toJson(battleHandler.getBattleConfiguration());
-        String data = gson.toJson(battleHandler.getBattleData());
+        forceCreate();
 
         try {
             File configFile = new File(getBattleFile(battleHandler) + configFileType);
             File dataFile = new File(getBattleFile(battleHandler) + dataFileType);
-            FileUtils.writeStringToFile(configFile, config, InstantBattlePlugin.CHARSET.name());
-            FileUtils.writeStringToFile(dataFile, data, InstantBattlePlugin.CHARSET.name());
+
+            mapper.writeValue(configFile, battleHandler.getBattleConfiguration());
+            mapper.writeValue(dataFile, battleHandler.getBattleData());
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Error while saving model.", e);
-            logger.log(Level.SEVERE, config);
-            logger.log(Level.SEVERE, data);
+            try {
+                logger.log(Level.SEVERE, "Configuration: \n\n" + mapper.writeValueAsString(battleHandler.getBattleConfiguration()));
+                logger.log(Level.SEVERE, "Data: \n\n" + mapper.writeValueAsString(battleHandler.getBattleData()));
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "CANNOT EVENT WRITE THE FILES", ex);
+            }
         }
     }
 
     public static HashMap<String, BattleHandler> loadBattleHandlers() {
+        forceCreate();
+
         HashMap<String, BattleHandler> battleHandlers = new HashMap<String, BattleHandler>();
 
         if (!InstantBattlePlugin.PLUGIN_DIRECTORY.exists()) {
@@ -87,8 +93,8 @@ public class InstantConfig {
             }
 
             try {
-                BattleConfiguration configuration = gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleConfiguration.class);
-                BattleData data = gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleData.class);
+                BattleConfiguration configuration = mapper.readValue(configFile, BattleConfiguration.class); //gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleConfiguration.class);
+                BattleData data = mapper.readValue(dataFile, BattleData.class); //gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleData.class);
                 BattleHandler battleHandler = new BattleHandler(battleName, configuration, data);
                 battleHandlers.put(battleName, battleHandler);
             } catch (IOException e) {

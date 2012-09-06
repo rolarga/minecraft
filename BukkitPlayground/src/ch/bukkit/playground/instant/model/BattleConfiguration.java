@@ -1,5 +1,6 @@
 package ch.bukkit.playground.instant.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Golem;
@@ -138,6 +139,7 @@ public class BattleConfiguration implements Validataeble {
     /**
      * @return compelete duration of an battle run + 1 minute to ensure small break and minimum duration
      */
+    @JsonIgnore
     public int getCompleteRunDuration() {
         return 1 + offset + duration;
     }
@@ -146,10 +148,12 @@ public class BattleConfiguration implements Validataeble {
         spanws.add(location);
     }
 
+    @JsonIgnore
     public World getWorld() {
         return pos1 != null ? pos1.getWorld() : null;
     }
 
+    @JsonIgnore
     public double getTotalRounds() {
         double totalRounds = 0.;
         for (Level level : levels) {
@@ -160,6 +164,7 @@ public class BattleConfiguration implements Validataeble {
 
     // helper method to get round
 
+    @JsonIgnore
     private Round getDefaultRound(int itemId, int factor) {
         Round round1 = new Round();
         round1.addMob(Zombie.class.getSimpleName(), 2 * factor);
@@ -170,10 +175,10 @@ public class BattleConfiguration implements Validataeble {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean checkValidity() {
         if (battleType == BattleType.COOP) {
             for (Level level : levels) {
-                if (!level.isValid()) return false;
+                if (!level.checkValidity()) return false;
             }
         }
 

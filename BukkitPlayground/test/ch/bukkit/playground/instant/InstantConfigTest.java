@@ -32,6 +32,7 @@ public class InstantConfigTest extends TestBase {
     public void testSaveAndLoadBattleHandler() throws Exception {
         battleHandler.getBattleData().addRegisteredPlayer(player);
         battleHandler.getBattleData().addRegisteredPlayer(player2);
+        battleHandler.getBattleConfiguration().setPos1(originLocation);
         InstantConfig.saveBattleHandler(battleHandler);
 
         Map<String, BattleHandler> battleHandlers = InstantConfig.loadBattleHandlers();

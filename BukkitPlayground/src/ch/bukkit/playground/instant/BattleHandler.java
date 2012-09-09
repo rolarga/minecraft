@@ -40,6 +40,9 @@ public class BattleHandler {
     }
 
     public void start() {
+        // mayber there are old battles running or so - so lets cleanup them first
+        cleanupBattle();
+
         if (battleData.getEndDate() != null && new Date().getTime() < (battleData.getEndDate().getTime() + 300000)) {
             logger.info("Cannot yet start an instant battle.");
             return;
@@ -50,15 +53,15 @@ public class BattleHandler {
         // create new plain timer
         battleTimer = new Timer();
 
-        Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset()));
-        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 2));
+        Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 2));
+        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 3));
         Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration()));
         Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration() + 1));
 
         new BroadcastTask(ChatColor.BLUE + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
 
-        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in 5 minutes, %players% players are registerd - Join now!"), tFirstMessage);
-        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in 1 minutes, %players% players are registerd - Join now!."), tSecondMessage);
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + battleConfiguration.getOffset() / 2 + " minutes, %players% players are registerd - Join now!"), tFirstMessage);
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + battleConfiguration.getOffset() / 3 + " minutes, %players% players are registerd - Join now!."), tSecondMessage);
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -183,19 +186,6 @@ public class BattleHandler {
             }
         }
 
-        // teleport them back
-        clearActivePlayersAndTeleportBack();
-
-        // clear model
-        if (battleConfiguration.getWorld() != null) {
-            for (Entity entity : battleConfiguration.getWorld().getEntities()) {
-                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) &&
-                        LocationHelper.isInSquare(battleConfiguration.getPos1(), battleConfiguration.getPos2(), entity.getLocation())) {
-                    entity.remove();
-                }
-            }
-        }
-
         cleanupBattle();
 
         InstantConfig.saveBattleHandler(this);
@@ -221,6 +211,18 @@ public class BattleHandler {
     }
 
     private void cleanupBattle() {
+        clearActivePlayersAndTeleportBack();
+
+        // clear model
+        if (battleConfiguration.getWorld() != null) {
+            for (Entity entity : battleConfiguration.getWorld().getEntities()) {
+                if ((entity.getType() == EntityType.DROPPED_ITEM || entity.getType() == EntityType.EXPERIENCE_ORB) &&
+                        LocationHelper.isInSquare(battleConfiguration.getPos1(), battleConfiguration.getPos2(), entity.getLocation())) {
+                    entity.remove();
+                }
+            }
+        }
+
         for (TimerTask timerTask : battleData.getTasks().keySet()) {
             timerTask.cancel();
         }

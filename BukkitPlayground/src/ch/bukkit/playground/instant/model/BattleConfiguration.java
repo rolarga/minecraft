@@ -1,6 +1,10 @@
 package ch.bukkit.playground.instant.model;
 
+import ch.bukkit.playground.instant.model.serializer.LocationList;
+import ch.bukkit.playground.instant.model.serializer.Locations;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Golem;
@@ -13,16 +17,33 @@ import java.util.List;
 public class BattleConfiguration implements Validataeble {
 
     private boolean autostart = false;
-    private Location pos1;
-    private Location pos2;
     private int offset = 5;
     private int duration = 30;
-    private Location posStart;
-    private Location posSpectator;
-    private int groupAmount = 1;
-    private List<Location> spanws = new LinkedList<Location>();
-    private List<Level> levels = new LinkedList<Level>();
     private BattleType battleType = BattleType.COOP;
+
+    private int groupAmount = 1;
+
+    @JsonSerialize(using = Locations.Serializer.class)
+    @JsonDeserialize(using = Locations.Deserializer.class)
+    private Location pos1;
+
+    @JsonSerialize(using = Locations.Serializer.class)
+    @JsonDeserialize(using = Locations.Deserializer.class)
+    private Location pos2;
+
+    @JsonSerialize(using = Locations.Serializer.class)
+    @JsonDeserialize(using = Locations.Deserializer.class)
+    private Location posStart;
+
+    @JsonSerialize(using = Locations.Serializer.class)
+    @JsonDeserialize(using = Locations.Deserializer.class)
+    private Location posSpectator;
+
+    @JsonSerialize(using = LocationList.Serializer.class)
+    @JsonDeserialize(using = LocationList.Deserializer.class)
+    private List<Location> spanws = new LinkedList<Location>();
+
+    private List<Level> levels = new LinkedList<Level>();
 
     public BattleConfiguration() {
         Level level1 = new Level("Welcome to level 1!");

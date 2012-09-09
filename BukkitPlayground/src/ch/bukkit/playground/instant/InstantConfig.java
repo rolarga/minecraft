@@ -80,6 +80,7 @@ public class InstantConfig {
             }
         }, null);
 
+        logger.info("Loading battles.");
         while (files.hasNext()) {
             File configFile = files.next();
             String battleName = configFile.getName().replace(configFileType, "");

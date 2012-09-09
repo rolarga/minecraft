@@ -53,6 +53,9 @@ public class InstantHandler {
         for (BattleHandler battleHandler : battleHandlers.values()) {
             if (battleHandler.getBattleConfiguration().checkValidity()) {
                 battleHandler.start();
+                logger.info("Starting battle: " + battleHandler.getName());
+            } else {
+                logger.info("Battle: " + battleHandler.getName() + " has invalid configuration.");
             }
         }
     }
@@ -89,7 +92,7 @@ public class InstantHandler {
         } else if ("unspec".equals(arg1) && player != null) {
             Location loc = battleHandler.getBattleData().getOriginSpectatorLocations().remove(player);
             if (loc != null) {
-                player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
+                player.teleport(loc);
                 Msg.sendMsg(player, ChatColor.GREEN + "You left the spectator lounge of battle " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You were not a spectator.");
@@ -106,40 +109,60 @@ public class InstantHandler {
     }
 
     public void handleOpCommands(String batlleName, String arg1, String arg2, Player player) {
+        boolean commandHandled = false;
         String playerName = player != null ? player.getName() : "CONSOLE";
 
         BattleHandler battleHandler = battleHandlers.get(batlleName);
         // if the battle doesnt exist, create it
-        if (battleHandler == null) {
+        if ("create".equals(arg1)) {
             battleHandler = new BattleHandler(batlleName, new BattleConfiguration(), new BattleData());
             battleHandlers.put(batlleName, battleHandler);
         }
 
-        if (player != null && "pos1".equals(arg1))
+        if (battleHandler == null) {
+            Msg.sendMsg(player, "Cannot find battle with name: " + batlleName + ". Use create if you want to build a new one.");
+            return;
+        }
+
+        if (player != null && "pos1".equals(arg1)) {
             battleHandler.getBattleConfiguration().setPos1(player.getLocation());
-        if (player != null && "pos2".equals(arg1))
+            commandHandled = true;
+        }
+
+        if (player != null && "pos2".equals(arg1)) {
             battleHandler.getBattleConfiguration().setPos2(player.getLocation());
-        if (player != null && "posstart".equals(arg1))
+            commandHandled = true;
+        }
+        if (player != null && "posstart".equals(arg1)) {
             battleHandler.getBattleConfiguration().setPosStart(player.getLocation());
-        if (player != null && "posspec".equals(arg1))
+            commandHandled = true;
+        }
+        if (player != null && "posspec".equals(arg1)) {
             battleHandler.getBattleConfiguration().setPosSpectator(player.getLocation());
+            commandHandled = true;
+        }
 
         if ("offset".equals(arg1)) {
             if (StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
                 Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number when the battle notifications should be sent out: '/instantop offset 5' will send first message 5 minutes before the battle starts.");
+            } else {
+                battleHandler.getBattleConfiguration().setOffset(Integer.parseInt(arg2));
+                commandHandled = true;
             }
-            battleHandler.getBattleConfiguration().setOffset(Integer.parseInt(arg2));
         }
 
         if ("duration".equals(arg1)) {
             if (StringUtils.isNullOrEmpty(arg2) && !NumberUtils.isDigits(arg2)) {
                 Msg.sendMsg(player, ChatColor.YELLOW + "Please specify a number how long the battle should last: '/instantop duration 30' will let the battle be 30 minutes long.");
+            } else {
+                battleHandler.getBattleConfiguration().setDuration(Integer.parseInt(arg2));
+                commandHandled = true;
             }
-            battleHandler.getBattleConfiguration().setDuration(Integer.parseInt(arg2));
         }
 
         if ("stop".equals(arg1)) {
             battleHandler.stop();
+            commandHandled = true;
         }
 
         if ("start".equals(arg1)) {
@@ -148,6 +171,7 @@ public class InstantHandler {
             battleHandler.start();
             // start the battle
             InstantConfig.saveBattleHandler(battleHandler);
+            commandHandled = true;
         }
 
         if ("stat".equals(arg1)) {
@@ -162,6 +186,7 @@ public class InstantHandler {
             if (battleHandler.getBattleData().getEndDate() != null) {
                 Msg.sendMsg(player, "Earliest Next round: " + DateHelper.format(new Date(battleHandler.getBattleData().getEndDate().getTime() + 300000)));
             }
+            commandHandled = true;
         }
 
         if ("kick".equals(arg1)) {
@@ -174,6 +199,7 @@ public class InstantHandler {
                 }
                 Msg.sendMsg(player, ChatColor.GRAY + "Kicked player " + target.getName());
                 Msg.sendMsg(player, ChatColor.RED + "You were kicked from current instant battle!");
+                commandHandled = true;
             }
         }
 
@@ -189,19 +215,23 @@ public class InstantHandler {
                 Msg.sendMsg(player, ChatColor.GRAY + "Blocked player " + target.getName());
                 target.sendMessage(ChatColor.RED + "You are blocked now for any further instant battles!");
                 Bukkit.getServer().broadcastMessage(ChatColor.RED + "Player '" + target.getName() + "' was blocked for any further instant battle by administrator.");
+                commandHandled = true;
             }
         }
 
         if (player != null && "addspawn".equals(arg1)) {
             battleHandler.getBattleConfiguration().addSpawn(player.getLocation());
+            commandHandled = true;
         }
 
         if ("clearspawn".equals(arg1)) {
             battleHandler.getBattleConfiguration().getSpanws().clear();
+            commandHandled = true;
         }
 
         InstantConfig.saveBattleHandler(battleHandler);
-        Msg.sendMsg(player, ChatColor.YELLOW + "Battle '" + batlleName + "' command " + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " by " + playerName);
+        String handled = "command was " + (commandHandled ? "" : " NOT ") + "handled ";
+        Msg.sendMsg(player, ChatColor.YELLOW + "Battle '" + batlleName + "' " + handled + arg1 + (StringUtils.isNullOrEmpty(arg2) ? "" : " argument " + arg2) + " by " + playerName);
     }
 
     @SuppressWarnings("unchecked")

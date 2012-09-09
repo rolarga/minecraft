@@ -46,13 +46,12 @@ public class PlayerLocationMap {
         public Map<Player, Location> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
             List<Map> playerLocationHolders = (List<Map>) jp.readValueAs(List.class);
 
-            Map<Player, Location> players = new HashMap<Player, Location>();
+            Map<Player, Location> locations = new HashMap<Player, Location>();
             for (Map mapEntry : playerLocationHolders) {
                 Player player = Bukkit.getServer().getPlayer("" + mapEntry.get("name"));
-                players.put(player, new Location(Bukkit.getWorld("" + mapEntry.get("worldName")), (Double) mapEntry.get("x"), (Double) mapEntry.get("y"), (Double) mapEntry.get("z")));
+                locations.put(player, new Location(Bukkit.getWorld("" + mapEntry.get("worldName")), (Double) mapEntry.get("x"), (Double) mapEntry.get("y"), (Double) mapEntry.get("z")));
             }
-            return players;
-
+            return locations;
         }
     }
 

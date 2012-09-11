@@ -1,9 +1,15 @@
 package ch.bukkit.playground.instant;
 
-import ch.bukkit.playground.instant.eventhandlers.*;
+import ch.bukkit.playground.instant.eventhandlers.entity.EntityEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.entity.EntityExplodeEventEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.entity2player.Entity2PlayerEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.entity2player.EntityDamageByEntity2PlayerEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.entity2player.EntityDeath2PlayerEventHandler;
+import ch.bukkit.playground.instant.eventhandlers.player.*;
 import ch.bukkit.playground.instant.model.BattleConfiguration;
 import ch.bukkit.playground.instant.model.BattleData;
 import ch.bukkit.playground.util.DateHelper;
+import ch.bukkit.playground.util.LocationHelper;
 import ch.bukkit.playground.util.Msg;
 import com.mysql.jdbc.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -14,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.*;
 
 import java.util.Date;
@@ -28,6 +35,7 @@ public class InstantHandler {
     protected HashMap<String, BattleHandler> battleHandlers;
     protected InstantListener instantListener;
     protected Map<Class<? extends PlayerEvent>, PlayerEventHandler> playerEventHandlers = new HashMap<Class<? extends PlayerEvent>, PlayerEventHandler>();
+    protected Map<Class<? extends EntityEvent>, Entity2PlayerEventHandler> entity2PlayerEventHandlers = new HashMap<Class<? extends EntityEvent>, Entity2PlayerEventHandler>();
     protected Map<Class<? extends EntityEvent>, EntityEventHandler> entityEventHandlers = new HashMap<Class<? extends EntityEvent>, EntityEventHandler>();
 
     public InstantHandler() {
@@ -43,9 +51,12 @@ public class InstantHandler {
         playerEventHandlers.put(PlayerTeleportEvent.class, new PlayerTeleportEventHandler());
         playerEventHandlers.put(PlayerToggleFlightEvent.class, new PlayerToggleFlightEventHandler());
 
+        // Initialize entity2player event handlers
+        entity2PlayerEventHandlers.put(EntityDeathEvent.class, new EntityDeath2PlayerEventHandler());
+        entity2PlayerEventHandlers.put(EntityDamageByEntityEvent.class, new EntityDamageByEntity2PlayerEventHandler());
+
         // Initialize entity event handlers
-        entityEventHandlers.put(EntityDeathEvent.class, new EntityDeathEventHandler());
-        entityEventHandlers.put(EntityDamageByEntityEvent.class, new EntityDamageByEntityEventHandler());
+        entityEventHandlers.put(EntityExplodeEvent.class, new EntityExplodeEventEventHandler());
     }
 
     public void start() {
@@ -182,6 +193,11 @@ public class InstantHandler {
             for (Player p : battleHandler.getBattleData().getActivePlayers().keySet()) {
                 Msg.sendMsg(player, "Active Player: " + p.getName());
             }
+            Msg.sendMsg(player, "Offset: " + battleHandler.getBattleConfiguration().getOffset());
+            Msg.sendMsg(player, "Duration: " + battleHandler.getBattleConfiguration().getDuration());
+            Msg.sendMsg(player, "Amount of groups: " + battleHandler.getBattleConfiguration().getGroupAmount());
+            Msg.sendMsg(player, "Type: " + battleHandler.getBattleConfiguration().getBattleType());
+
             Msg.sendMsg(player, "End Date: " + DateHelper.format(battleHandler.getBattleData().getEndDate()));
             if (battleHandler.getBattleData().getEndDate() != null) {
                 Msg.sendMsg(player, "Earliest Next round: " + DateHelper.format(new Date(battleHandler.getBattleData().getEndDate().getTime() + 300000)));
@@ -243,6 +259,7 @@ public class InstantHandler {
             for (BattleHandler battleHandler : battleHandlers.values()) {
                 if (battleHandler.getBattleData().getActivePlayers().containsKey(playerEvent.getPlayer())) {
                     eventHandler.processEvent(playerEvent, battleHandler);
+                    break;
                 }
             }
         }
@@ -253,18 +270,26 @@ public class InstantHandler {
         if (entityEvent == null) return;
         if (entityEvent.getEntity() == null) return;
 
-        EntityEventHandler eventHandler = entityEventHandlers.get(entityEvent.getClass());
+        Entity2PlayerEventHandler a2PlayerEventHandler = entity2PlayerEventHandlers.get(entityEvent.getClass());
 
         // can handle the event
-        if (eventHandler != null && Player.class.isAssignableFrom(entityEvent.getEntity().getClass())) {
+        if (a2PlayerEventHandler != null && Player.class.isAssignableFrom(entityEvent.getEntity().getClass())) {
             Player player = (Player) entityEvent.getEntity();
             for (BattleHandler battleHandler : battleHandlers.values()) {
                 if (battleHandler.getBattleData().getActivePlayers().containsKey(player)) {
-                    eventHandler.processEvent(entityEvent, battleHandler, player);
+                    a2PlayerEventHandler.processEvent(entityEvent, battleHandler, player);
+                    break;
+                }
+            }
+        } else {
+            for (BattleHandler battleHandler : battleHandlers.values()) {
+                if (LocationHelper.isInSquare(battleHandler.getBattleConfiguration().getPos1(), battleHandler.getBattleConfiguration().getPos2(), entityEvent.getEntity().getLocation())) {
+                    EntityEventHandler entityEventHandler = entityEventHandlers.get(entityEvent.getClass());
+                    entityEventHandler.processEvent(entityEvent, battleHandler, entityEvent.getEntity());
+                    break;
                 }
             }
         }
-
     }
 
     public void disable() {

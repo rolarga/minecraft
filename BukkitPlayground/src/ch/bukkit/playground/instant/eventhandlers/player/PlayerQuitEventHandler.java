@@ -1,4 +1,4 @@
-package ch.bukkit.playground.instant.eventhandlers;
+package ch.bukkit.playground.instant.eventhandlers.player;
 
 import ch.bukkit.playground.instant.BattleHandler;
 import ch.bukkit.playground.instant.tasks.MessageTask;

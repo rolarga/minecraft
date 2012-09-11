@@ -5,6 +5,7 @@ import ch.bukkit.playground.instant.model.serializer.Locations;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Golem;
@@ -46,27 +47,29 @@ public class BattleConfiguration implements Validataeble {
     private List<Level> levels = new LinkedList<Level>();
 
     public BattleConfiguration() {
-        Level level1 = new Level("Welcome to level 1!");
-        level1.addRound(getDefaultRound(262, 1));
-        level1.addRound(getDefaultRound(262, 2));
-        level1.addRound(getDefaultRound(262, 3));
-        level1.addRound(getDefaultRound(360, 4));
+        if (CollectionUtils.isEmpty(levels)) {
+            Level level1 = new Level("Welcome to level 1!");
+            level1.addRound(getDefaultRound(262, 1));
+            level1.addRound(getDefaultRound(262, 2));
+            level1.addRound(getDefaultRound(262, 3));
+            level1.addRound(getDefaultRound(360, 4));
 
-        Level level2 = new Level("You reached level 2 - not bad.");
-        level2.addRound(getDefaultRound(352, 5));
-        level2.addRound(getDefaultRound(352, 6));
-        level2.addRound(getDefaultRound(352, 7));
-        level2.addRound(getDefaultRound(360, 8));
+            Level level2 = new Level("You reached level 2 - not bad.");
+            level2.addRound(getDefaultRound(352, 5));
+            level2.addRound(getDefaultRound(352, 6));
+            level2.addRound(getDefaultRound(352, 7));
+            level2.addRound(getDefaultRound(360, 8));
 
-        Level level3 = new Level("You reached the bossfight - seems you guys are pretty good, arent you? have fun!");
-        level3.addRound(getDefaultRound(354, 9));
-        level3.addRound(getDefaultRound(354, 10));
-        level3.addRound(getDefaultRound(354, 11));
-        level3.addRound(getDefaultRound(360, 12));
+            Level level3 = new Level("You reached the bossfight - seems you guys are pretty good, arent you? have fun!");
+            level3.addRound(getDefaultRound(354, 9));
+            level3.addRound(getDefaultRound(354, 10));
+            level3.addRound(getDefaultRound(354, 11));
+            level3.addRound(getDefaultRound(360, 12));
 
-        levels.add(level1);
-        levels.add(level2);
-        levels.add(level3);
+            levels.add(level1);
+            levels.add(level2);
+            levels.add(level3);
+        }
     }
 
     public boolean isAutostart() {

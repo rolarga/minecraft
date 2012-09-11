@@ -1,53 +1,38 @@
 package ch.bukkit.playground;
 
+import ch.bukkit.playground.instant.model.BattleData;
+import ch.bukkit.playground.util.DateHelper;
+
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Date;
 
 public class Test {
 
     public static void main(String[] args) throws IOException {
-//        InstantHandler instantHandler = new InstantHandler();
-//        instantHandler.start();
-//
-//        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-//        String s;
-//        while ((s = in.readLine()) != null) {
-//            if ("exit".equals(s)) System.exit(0);
-//
-//            if (s.startsWith("create")) {
-//                s = s.replace("create ", "");
-//                instantHandler.handleOpCommands(s, "stat", null, null);
-//            }
-//        }
 
-        List<Integer> levels = new LinkedList<Integer>();
-        levels.add(11);
-        levels.add(2);
-        levels.add(9);
-        levels.add(4);
-        levels.add(23);
-        levels.add(6);
+        final BattleData battleData = new BattleData();
+        double totalRounds = 12.;
+        double roundQuantity = 4.;
+        int levels = 3;
+        int offset = 2;
+        int duration = 30;
+        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(offset + 1));
+        Date time = tPlus1Minute;
 
-        sort(levels, false);
-        sort(levels, true);
+        System.out.println("Current time " + DateHelper.format(new Date(System.currentTimeMillis())));
+        double levelDuration = ((double) duration) / ((double) levels);
+        for (int i = 0; i < levels; i++) {
+            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(levelDuration) / roundQuantity, 1);
+            System.out.println("One turn takes " + DateHelper.getMinutesForMillis(millisPerRound) + " minutes or " + millisPerRound + " millis");
 
-    }
-
-    private static void sort(List<Integer> levels, final boolean desc) {
-        List<Integer> playersSorted = new LinkedList<Integer>(levels);
-        Collections.sort(playersSorted, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer player, Integer player1) {
-                if (!desc) {
-                    return player - player1;
-                }
-                return player1 - player;
+            System.out.println("Adding welcome message at " + DateHelper.format(time));
+            for (int j = 0; j < roundQuantity; j++) {
+                System.out.println("Adding spawns at " + DateHelper.format(time));
+                time = new Date(time.getTime() + millisPerRound);
+                battleData.setEndDate(time);
             }
-        });
-        System.out.println(playersSorted);
+        }
+        System.out.println(DateHelper.format(battleData.getEndDate()));
     }
 }
 

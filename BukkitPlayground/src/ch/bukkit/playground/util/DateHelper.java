@@ -15,8 +15,8 @@ public class DateHelper {
         return dateFormat.format(date);
     }
 
-    public static long getMillisForMinutes(long minutes) {
-        return minutes * 60000;
+    public static long getMillisForMinutes(double minutes) {
+        return (long) (minutes * 60000);
     }
 
     public static BigDecimal getMinutesForMillis(long millis) {

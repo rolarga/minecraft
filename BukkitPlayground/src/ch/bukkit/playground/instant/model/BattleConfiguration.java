@@ -177,15 +177,6 @@ public class BattleConfiguration implements Validataeble {
         return pos1 != null ? pos1.getWorld() : null;
     }
 
-    @JsonIgnore
-    public double getTotalRounds() {
-        double totalRounds = 0.;
-        for (Level level : levels) {
-            totalRounds += level.getRoundQuantity();
-        }
-        return totalRounds;
-    }
-
     // helper method to get round
 
     @JsonIgnore

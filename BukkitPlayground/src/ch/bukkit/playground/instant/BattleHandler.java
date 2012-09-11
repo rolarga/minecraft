@@ -113,33 +113,28 @@ public class BattleHandler {
 
                 new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
                 new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!").run();
+
+                battleData.setActive(true);
             }
         };
         battleData.addTask(timerTask, t);
 
         Date time = tPlus1Minute;
-        double totalRounds = battleConfiguration.getTotalRounds();
+        double levelDuration = ((double) battleConfiguration.getDuration()) / ((double) battleConfiguration.getLevels().size());
         for (final Level level : battleConfiguration.getLevels()) {
-            double multiplicator = level.getRoundQuantity() / totalRounds;
-            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(battleConfiguration.getDuration()) * multiplicator, 1);
-
-            // set the battle active when first spawn starts
-            battleData.addTask(new TimerTask() {
-                @Override
-                public void run() {
-                    battleData.setActive(true);
-                }
-            }, time);
-
             // add spawns and welcome messages go each level/round
             battleData.addTask(new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
             for (final Round round : level.getRounds()) {
+                // spawn the mobs
                 if (InstantBattlePlugin.DEBUG)
                     logger.info("Added spawn for " + round + " at " + DateHelper.format(time));
 
                 for (Map.Entry<String, Integer> mob2Quantity : round.getMobs().entrySet()) {
                     battleData.addTask(new SpawnTask(battleConfiguration, battleData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
                 }
+
+                // calculate next round
+                int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(levelDuration) / level.getRoundQuantity(), 1);
                 time = new Date(time.getTime() + millisPerRound);
 
                 // at the end of each round, there are rewards for each remaining player
@@ -151,7 +146,6 @@ public class BattleHandler {
                 }, time);
 
                 battleData.setEndDate(time);
-
             }
         }
 
@@ -255,6 +249,7 @@ public class BattleHandler {
             }
         }
         battleData.setEndDate(null);
+        battleData.setActive(false);
     }
 
     public void clearActivePlayersAndTeleportBack() {

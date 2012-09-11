@@ -90,7 +90,7 @@ public class InstantHandler {
             } else if (player.getLevel() < battleHandler.getBattleConfiguration().getMinLevel()) {
                 Msg.sendMsg(player, ChatColor.RED + "Your level is low high to join " + battleHandler.getName() + " battle.");
             } else if (battleHandler.getBattleData().addRegisteredPlayer(player)) {
-                Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for battle: " + battleHandler.getName() + ".");
+                Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for battle " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You are blocked for this action.");
             }
@@ -132,6 +132,7 @@ public class InstantHandler {
         if ("create".equals(arg1)) {
             battleHandler = new BattleHandler(batlleName, new BattleConfiguration(), new BattleData());
             battleHandlers.put(batlleName, battleHandler);
+            commandHandled = true;
         }
 
         if (battleHandler == null) {
@@ -289,7 +290,9 @@ public class InstantHandler {
             for (BattleHandler battleHandler : battleHandlers.values()) {
                 if (LocationHelper.isInSquare(battleHandler.getBattleConfiguration().getPos1(), battleHandler.getBattleConfiguration().getPos2(), entityEvent.getEntity().getLocation())) {
                     EntityEventHandler entityEventHandler = entityEventHandlers.get(entityEvent.getClass());
-                    entityEventHandler.processEvent(entityEvent, battleHandler, entityEvent.getEntity());
+                    if (entityEventHandler != null) {
+                        entityEventHandler.processEvent(entityEvent, battleHandler, entityEvent.getEntity());
+                    }
                     break;
                 }
             }

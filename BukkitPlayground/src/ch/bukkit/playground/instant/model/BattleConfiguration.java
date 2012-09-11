@@ -20,6 +20,8 @@ public class BattleConfiguration implements Validataeble {
     private boolean autostart = false;
     private int offset = 5;
     private int duration = 30;
+    private int minLevel = 0;
+    private int maxLevel = 100;
     private BattleType battleType = BattleType.COOP;
 
     private int groupAmount = 1;
@@ -158,6 +160,22 @@ public class BattleConfiguration implements Validataeble {
 
     public void setGroupAmount(int groupAmount) {
         this.groupAmount = groupAmount;
+    }
+
+    public int getMinLevel() {
+        return minLevel;
+    }
+
+    public void setMinLevel(int minLevel) {
+        this.minLevel = minLevel;
+    }
+
+    public int getMaxLevel() {
+        return maxLevel;
+    }
+
+    public void setMaxLevel(int maxLevel) {
+        this.maxLevel = maxLevel;
     }
 
     /**

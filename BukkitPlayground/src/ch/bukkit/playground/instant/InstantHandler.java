@@ -85,7 +85,11 @@ public class InstantHandler {
         }
 
         if ("join".equals(arg1) && player != null) {
-            if (battleHandler.getBattleData().addRegisteredPlayer(player)) {
+            if (player.getLevel() > battleHandler.getBattleConfiguration().getMaxLevel()) {
+                Msg.sendMsg(player, ChatColor.RED + "Your level is too high to join " + battleHandler.getName() + " battle.");
+            } else if (player.getLevel() < battleHandler.getBattleConfiguration().getMinLevel()) {
+                Msg.sendMsg(player, ChatColor.RED + "Your level is low high to join " + battleHandler.getName() + " battle.");
+            } else if (battleHandler.getBattleData().addRegisteredPlayer(player)) {
                 Msg.sendMsg(player, ChatColor.GREEN + "You joined the instant registration list for battle: " + battleHandler.getName() + ".");
             } else {
                 Msg.sendMsg(player, ChatColor.RED + "You are blocked for this action.");

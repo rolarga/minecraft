@@ -42,4 +42,13 @@ public class Reward implements Validataeble {
     public boolean checkValidity() {
         return (id > 0 && quantity > 0) || money > 0;
     }
+
+    @Override
+    public String toString() {
+        return "Reward{" +
+                "id=" + id +
+                ", quantity=" + quantity +
+                ", money=" + money +
+                '}';
+    }
 }

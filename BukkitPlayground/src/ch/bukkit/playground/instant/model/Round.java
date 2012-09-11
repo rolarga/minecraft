@@ -53,4 +53,12 @@ public class Round implements Validataeble {
 
         return mobs.size() > 0 && rewards.size() > 0;
     }
+
+    @Override
+    public String toString() {
+        return "Round{" +
+                "rewards=" + rewards +
+                ", mobs=" + mobs +
+                '}';
+    }
 }

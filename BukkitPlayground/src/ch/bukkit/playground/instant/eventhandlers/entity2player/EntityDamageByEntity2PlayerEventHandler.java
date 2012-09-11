@@ -1,4 +1,4 @@
-package ch.bukkit.playground.instant.eventhandlers;
+package ch.bukkit.playground.instant.eventhandlers.entity2player;
 
 import ch.bukkit.playground.instant.BattleHandler;
 import org.bukkit.entity.Player;
@@ -6,7 +6,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.List;
 
-public class EntityDamageByEntityEventHandler implements EntityEventHandler<EntityDamageByEntityEvent> {
+public class EntityDamageByEntity2PlayerEventHandler implements Entity2PlayerEventHandler<EntityDamageByEntityEvent> {
 
     @Override
     public void processEvent(EntityDamageByEntityEvent event, BattleHandler battleHandler, Player player) {

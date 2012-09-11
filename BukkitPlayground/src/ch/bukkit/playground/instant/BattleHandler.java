@@ -1,5 +1,6 @@
 package ch.bukkit.playground.instant;
 
+import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.instant.model.*;
 import ch.bukkit.playground.instant.tasks.BroadcastTask;
 import ch.bukkit.playground.instant.tasks.MessageTask;
@@ -8,6 +9,7 @@ import ch.bukkit.playground.interfaces.thirdparty.EconomyApi;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.LocationHelper;
 import ch.bukkit.playground.util.PlayerUtil;
+import org.apache.commons.collections.MapUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -53,15 +55,22 @@ public class BattleHandler {
         // create new plain timer
         battleTimer = new Timer();
 
-        Date tFirstMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 2));
-        Date tSecondMessage = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() / 3));
-        Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration()));
-        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getDuration() + 1));
+        Date tFirstMessage = new Date(System.currentTimeMillis() + (DateHelper.getMillisForMinutes(battleConfiguration.getOffset()) / 2));
+        if (InstantBattlePlugin.DEBUG) logger.info("Added first message " + DateHelper.format(tFirstMessage));
+        Date tSecondMessage = new Date(System.currentTimeMillis() + (DateHelper.getMillisForMinutes(battleConfiguration.getOffset() * 2) / 3));
+        if (InstantBattlePlugin.DEBUG) logger.info("Added second message " + DateHelper.format(tSecondMessage));
+        Date t = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset()));
+        if (InstantBattlePlugin.DEBUG) logger.info("t " + DateHelper.format(t));
+        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(battleConfiguration.getOffset() + 1));
+        if (InstantBattlePlugin.DEBUG) logger.info("t+1" + DateHelper.format(tPlus1Minute));
 
         new BroadcastTask(ChatColor.BLUE + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
 
-        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + battleConfiguration.getOffset() / 2 + " minutes, %players% players are registerd - Join now!"), tFirstMessage);
-        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + battleConfiguration.getOffset() / 3 + " minutes, %players% players are registerd - Join now!."), tSecondMessage);
+        long millis = Math.abs(tFirstMessage.getTime() - System.currentTimeMillis());
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + DateHelper.getMinutesForMillis(millis) + " minutes, %players% players are registerd - Join now!"), tFirstMessage);
+
+        millis = Math.abs(System.currentTimeMillis() - tSecondMessage.getTime());
+        battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + DateHelper.getMinutesForMillis(millis) + " minutes, %players% players are registerd - Join now!."), tSecondMessage);
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -70,7 +79,6 @@ public class BattleHandler {
                 battleData.getActivePlayers().clear();
 
                 // move online players
-                int currentGroup = 0;
                 for (Player player : battleData.getRegisteredPlayers()) {
                     if (player.isOnline()) {
                         Location loc = player.getLocation();
@@ -89,6 +97,15 @@ public class BattleHandler {
                         player.sendMessage(ChatColor.RED + "You were not added to the instant battle as you were offline at that time.");
                     }
                 }
+                if (MapUtils.isEmpty(battleData.getActivePlayers())) {
+                    new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "Instant battle " + name + " will not start as there where no players registered for it.").run();
+                    stop();
+                    start();
+                }
+
+                if (InstantBattlePlugin.DEBUG)
+                    logger.info("Added " + battleData.getActivePlayers() + " to battle " + name);
+
                 battleData.getRegisteredPlayers().clear();
                 battleData.setTotalActivePlayers(battleData.getActivePlayers().size());
                 battleData.setGroups(PlayerUtil.getEqualDistributedGroupByLevel(battleConfiguration.getGroupAmount(), battleData.getActivePlayers().keySet()));
@@ -117,6 +134,9 @@ public class BattleHandler {
             // add spawns and welcome messages go each level/round
             battleData.addTask(new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
             for (final Round round : level.getRounds()) {
+                if (InstantBattlePlugin.DEBUG)
+                    logger.info("Added spawn for " + round + " at " + DateHelper.format(time));
+
                 for (Map.Entry<String, Integer> mob2Quantity : round.getMobs().entrySet()) {
                     battleData.addTask(new SpawnTask(battleConfiguration, battleData, mob2Quantity.getKey(), mob2Quantity.getValue()), time);
                 }
@@ -131,6 +151,7 @@ public class BattleHandler {
                 }, time);
 
                 battleData.setEndDate(time);
+
             }
         }
 
@@ -226,6 +247,7 @@ public class BattleHandler {
         for (TimerTask timerTask : battleData.getTasks().keySet()) {
             timerTask.cancel();
         }
+        battleData.getTasks().clear();
 
         for (Entity entity : battleData.getSpawnedMobs()) {
             if (entity.isValid()) {

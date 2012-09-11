@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.*;
 
 public class InstantListener implements Listener {
@@ -54,6 +55,11 @@ public class InstantListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void playerQuit(PlayerQuitEvent quit) {
         instantHandler.handlePlayerEvents(quit);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void entityExplode(EntityExplodeEvent expl) {
+        instantHandler.handleEntityEvents(expl);
     }
 }
 

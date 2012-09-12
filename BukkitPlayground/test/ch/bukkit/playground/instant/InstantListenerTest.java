@@ -57,7 +57,7 @@ public class InstantListenerTest extends TestBase {
         PlayerMoveEvent playerMoveEvent = new PlayerMoveEvent(player, new Location(world, 0, 0, 0), new Location(world, 10, 10, 10));
         Bukkit.getServer().getPluginManager().callEvent(playerMoveEvent);
 
-        assert playerMoveEvent.isCancelled();
+        assert playerMoveEvent.getTo() == playerMoveEvent.getFrom();
     }
 
     @Test

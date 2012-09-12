@@ -7,6 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Monster;
 
 import java.util.TimerTask;
 import java.util.logging.Logger;
@@ -30,7 +31,7 @@ public class SpawnTask extends TimerTask {
     @Override
     @SuppressWarnings("unchecked")
     public void run() {
-        Class<Entity> entityClass = EntityHelper.getEntityClassForString(entity);
+        Class<Monster> entityClass = EntityHelper.getMonsterClassForString(entity);
         if (entityClass != null) {
             int quantity = battleData.getTotalActivePlayers() * round;
             for (int i = 0; i < quantity; i++) {

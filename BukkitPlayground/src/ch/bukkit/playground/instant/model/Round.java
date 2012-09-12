@@ -1,7 +1,7 @@
 package ch.bukkit.playground.instant.model;
 
 import ch.bukkit.playground.util.EntityHelper;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.Monster;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ public class Round implements Validataeble {
     }
 
     public void addMob(String entity, int i) {
-        Class<Entity> entityClass = EntityHelper.getEntityClassForString(entity);
+        Class<Monster> entityClass = EntityHelper.getMonsterClassForString(entity);
         if (entityClass != null) {
             mobs.put(entity, i);
         }
@@ -47,7 +47,7 @@ public class Round implements Validataeble {
         // but we do remove it and if there are no more of the - an error is thrown.
         List<String> mobNames = new LinkedList<String>(mobs.keySet());
         for (String entity : mobNames) {
-            EntityHelper.getEntityClassForString(entity);
+            EntityHelper.getMonsterClassForString(entity);
             mobs.remove(entity);
         }
 

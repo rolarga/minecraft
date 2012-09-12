@@ -66,10 +66,10 @@ public class BattleHandler {
 
         new BroadcastTask(ChatColor.BLUE + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle is open for registration. Press /instant join " + name + " to join the next battle. Next round at " + DateHelper.format(t)).run();
 
-        long millis = Math.abs(tFirstMessage.getTime() - System.currentTimeMillis());
+        long millis = t.getTime() - tFirstMessage.getTime();
         battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + DateHelper.getMinutesForMillis(millis) + " minutes, %players% players are registerd - Join now!"), tFirstMessage);
 
-        millis = Math.abs(System.currentTimeMillis() - tSecondMessage.getTime());
+        millis = t.getTime() - tSecondMessage.getTime();
         battleData.addTask(new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "A new " + battleConfiguration.getBattleType().getDisplayName() + " instant battle starts in " + DateHelper.getMinutesForMillis(millis) + " minutes, %players% players are registerd - Join now!."), tSecondMessage);
 
         TimerTask timerTask = new TimerTask() {
@@ -112,7 +112,7 @@ public class BattleHandler {
                 InstantConfig.saveBattleHandler(BattleHandler.this);
 
                 new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
-                new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are %players% players with you fighting - enjoy!").run();
+                new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Get ready for the fight, you have 1 minute to prepare yourself. There are " + (battleData.getActivePlayers().size() - 1) + " players with you fighting - enjoy!").run();
 
                 battleData.setActive(true);
             }

@@ -16,23 +16,36 @@ public class Test {
         int levels = 3;
         int offset = 2;
         int duration = 30;
-        Date tPlus1Minute = new Date(System.currentTimeMillis() + DateHelper.getMillisForMinutes(offset + 1));
-        Date time = tPlus1Minute;
+        String name = "test";
 
-        System.out.println("Current time " + DateHelper.format(new Date(System.currentTimeMillis())));
-        double levelDuration = ((double) duration) / ((double) levels);
-        for (int i = 0; i < levels; i++) {
-            int millisPerRound = (int) Math.max(DateHelper.getMillisForMinutes(levelDuration) / roundQuantity, 1);
-            System.out.println("One turn takes " + DateHelper.getMinutesForMillis(millisPerRound) + " minutes or " + millisPerRound + " millis");
+        long currentMillis = System.currentTimeMillis();
+        Date tFirstMessage = new Date(currentMillis + (DateHelper.getMillisForMinutes(offset) / 2));
+        System.out.println("Added first message: " + DateHelper.format(tFirstMessage));
+        Date tSecondMessage = new Date(currentMillis + (DateHelper.getMillisForMinutes(offset * 2) / 3));
+        System.out.println("Added second message: " + DateHelper.format(tSecondMessage));
+        Date t = new Date(currentMillis + DateHelper.getMillisForMinutes(offset));
+        System.out.println("t: " + DateHelper.format(t));
+        Date tPlus1Minute = new Date(currentMillis + DateHelper.getMillisForMinutes(offset + 1));
+        System.out.println("t+1: " + DateHelper.format(tPlus1Minute));
 
-            System.out.println("Adding welcome message at " + DateHelper.format(time));
-            for (int j = 0; j < roundQuantity; j++) {
-                System.out.println("Adding spawns at " + DateHelper.format(time));
-                time = new Date(time.getTime() + millisPerRound);
-                battleData.setEndDate(time);
-            }
-        }
-        System.out.println(DateHelper.format(battleData.getEndDate()));
+
+        long millis = Math.abs(tFirstMessage.getTime() - currentMillis);
+        System.out.println(millis);
+        System.out.println("first: " + DateHelper.getMinutesForMillis(millis));
+
+        millis = Math.abs(currentMillis - tSecondMessage.getTime());
+        System.out.println(millis);
+        System.out.println("second: " + DateHelper.getMinutesForMillis(millis));
+
+
+        millis = t.getTime() - tFirstMessage.getTime();
+        System.out.println(millis);
+        System.out.println("first: " + DateHelper.getMinutesForMillis(millis));
+
+        millis = t.getTime() - tSecondMessage.getTime();
+        System.out.println(millis);
+        System.out.println("second: " + DateHelper.getMinutesForMillis(millis));
+
     }
 }
 

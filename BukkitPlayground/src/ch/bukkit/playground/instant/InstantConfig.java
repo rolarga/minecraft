@@ -10,7 +10,6 @@ import org.apache.commons.io.filefilter.AbstractFileFilter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -28,7 +27,6 @@ public class InstantConfig {
 
     static {
         forceCreate();
-        StringWriter writer = new StringWriter();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 

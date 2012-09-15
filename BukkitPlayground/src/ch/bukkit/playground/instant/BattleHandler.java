@@ -8,6 +8,7 @@ import ch.bukkit.playground.instant.tasks.SpawnTask;
 import ch.bukkit.playground.interfaces.thirdparty.EconomyApi;
 import ch.bukkit.playground.util.DateHelper;
 import ch.bukkit.playground.util.LocationHelper;
+import ch.bukkit.playground.util.Msg;
 import ch.bukkit.playground.util.PlayerUtil;
 import org.apache.commons.collections.MapUtils;
 import org.bukkit.ChatColor;
@@ -42,6 +43,15 @@ public class BattleHandler {
     }
 
     public void start() {
+        start(null);
+    }
+
+    public void start(final Player player) {
+        if (!battleConfiguration.checkValidity()) {
+            Msg.sendMsg(player, "Cannot start battle " + name + " because of invalid configuration.");
+            return;
+        }
+
         // mayber there are old battles running or so - so lets cleanup them first
         cleanupBattle();
 
@@ -100,7 +110,7 @@ public class BattleHandler {
                 if (MapUtils.isEmpty(battleData.getActivePlayers())) {
                     new BroadcastTask(battleData.getRegisteredPlayers(), ChatColor.YELLOW + "Instant battle " + name + " will not start as there where no players registered for it.").run();
                     stop();
-                    start();
+                    start(player);
                 }
 
                 if (InstantBattlePlugin.DEBUG)

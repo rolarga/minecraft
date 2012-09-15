@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Golem;
+import org.bukkit.entity.Blaze;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Zombie;
 
@@ -49,6 +49,10 @@ public class BattleConfiguration implements Validataeble {
     private List<Level> levels = new LinkedList<Level>();
 
     public BattleConfiguration() {
+        Init();
+    }
+
+    private void Init() {
         if (CollectionUtils.isEmpty(levels)) {
             Level level1 = new Level("Welcome to level 1!");
             level1.addRound(getDefaultRound(262, 1));
@@ -201,7 +205,7 @@ public class BattleConfiguration implements Validataeble {
     private Round getDefaultRound(int itemId, int factor) {
         Round round1 = new Round();
         round1.addMob(Zombie.class.getSimpleName(), 2 * factor);
-        round1.addMob(Golem.class.getSimpleName(), 2 * factor);
+        round1.addMob(Blaze.class.getSimpleName(), 2 * factor);
         round1.addMob(Spider.class.getSimpleName(), 2 * factor);
         round1.addReward(itemId, 2 * factor);
         return round1;
@@ -210,6 +214,9 @@ public class BattleConfiguration implements Validataeble {
     @Override
     public boolean checkValidity() {
         if (battleType == BattleType.COOP) {
+            if (CollectionUtils.isEmpty(levels)) {
+                Init();
+            }
             for (Level level : levels) {
                 if (!level.checkValidity()) return false;
             }

@@ -7,7 +7,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Monster;
+import org.bukkit.entity.LivingEntity;
 
 import java.util.TimerTask;
 import java.util.logging.Logger;
@@ -31,7 +31,7 @@ public class SpawnTask extends TimerTask {
     @Override
     @SuppressWarnings("unchecked")
     public void run() {
-        Class<Monster> entityClass = EntityHelper.getMonsterClassForString(entity);
+        Class<LivingEntity> entityClass = EntityHelper.getLivingEntityClassForName(entity);
         if (entityClass != null) {
             int quantity = battleData.getTotalActivePlayers() * round;
             for (int i = 0; i < quantity; i++) {
@@ -42,9 +42,12 @@ public class SpawnTask extends TimerTask {
                 } else {
                     loc = battleConfiguration.getPosStart();
                 }
-
-                Entity e = battleConfiguration.getWorld().spawn(loc, entityClass);
-                battleData.addSpawnedMob(e);
+                try {
+                    Entity e = battleConfiguration.getWorld().spawn(loc, entityClass);
+                    battleData.addSpawnedMob(e);
+                } catch (Exception e) {
+                    logger.warning("Could not spawn entity '" + entity + "'.");
+                }
             }
             new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.RED + "Spawned " + quantity + " " + entity + " monsters. Have fun killing them.").run();
         }

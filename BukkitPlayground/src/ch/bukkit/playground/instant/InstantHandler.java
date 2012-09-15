@@ -101,6 +101,13 @@ public class InstantHandler {
                 Msg.sendMsg(player, ChatColor.RED + "You were not registered.");
             }
         } else if ("spec".equals(arg1) && player != null) {
+            for (BattleHandler handler : battleHandlers.values()) {
+                if (handler.getBattleData().getActivePlayers().containsKey(player) ||
+                        handler.getBattleData().getOriginSpectatorLocations().containsKey(player)) {
+                    Msg.sendMsg(player, "You cannot spectate " + handler.getName() + " while being active in or spectating another one.");
+                    return;
+                }
+            }
             battleHandler.getBattleData().addSpecator(player, player.getLocation());
             player.teleport(battleHandler.getBattleConfiguration().getPosSpectator());
             Msg.sendMsg(player, ChatColor.GREEN + "You joined the spectator lounge of battle: " + battleHandler.getName() + ".");
@@ -183,8 +190,7 @@ public class InstantHandler {
 
         if ("start".equals(arg1)) {
             // make sure the battle is not already running
-            battleHandler.stop();
-            battleHandler.start();
+            battleHandler.start(player);
             // start the battle
             InstantConfig.saveBattleHandler(battleHandler);
             commandHandled = true;

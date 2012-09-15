@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -49,7 +50,11 @@ public class PlayerLocationMap {
             Map<Player, Location> locations = new HashMap<Player, Location>();
             for (Map mapEntry : playerLocationHolders) {
                 Player player = Bukkit.getServer().getPlayer("" + mapEntry.get("name"));
-                locations.put(player, new Location(Bukkit.getWorld("" + mapEntry.get("worldName")), (Double) mapEntry.get("x"), (Double) mapEntry.get("y"), (Double) mapEntry.get("z")));
+                World world = Bukkit.getWorld("" + mapEntry.get("worldName"));
+                if (player != null && world != null) {
+                    Location loc = new Location(world, (Double) mapEntry.get("x"), (Double) mapEntry.get("y"), (Double) mapEntry.get("z"));
+                    locations.put(player, loc);
+                }
             }
             return locations;
         }

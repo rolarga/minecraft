@@ -1,6 +1,10 @@
 package ch.bukkit.playground.instant.model;
 
+import java.util.logging.Logger;
+
 public class Reward implements Validataeble {
+
+    private final static Logger logger = Logger.getLogger("Reward");
 
     private int id;
     private int quantity;
@@ -40,7 +44,22 @@ public class Reward implements Validataeble {
 
     @Override
     public boolean checkValidity() {
-        return (id > 0 && quantity > 0) || money > 0;
+        if (money < 1) {
+            if (id < 1) {
+                logger.warning("Reward ID must be bigger then 0 and a valid minecraft item id");
+                return false;
+            }
+            if (quantity < 1 || quantity > 64) {
+                logger.warning("Reward Quantity must be between 0 and 64");
+                return false;
+            }
+            return true;
+        } else if (money > 0) {
+            return true;
+        }
+
+        logger.warning("Money must be bigger then 1, if no item reward is set.");
+        return false;
     }
 
     @Override

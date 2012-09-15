@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Level implements Validataeble {
+
+    private final static Logger logger = Logger.getLogger("Level");
 
     private List<Round> rounds = new LinkedList<Round>();
     private String welcomeMessage = "Welcome to a new level!";
@@ -45,7 +48,10 @@ public class Level implements Validataeble {
     @Override
     public boolean checkValidity() {
         for (Round round : rounds) {
-            if (!round.checkValidity()) return false;
+            if (!round.checkValidity()) {
+                logger.warning("Found invalid round " + round);
+                return false;
+            }
         }
 
         return true;

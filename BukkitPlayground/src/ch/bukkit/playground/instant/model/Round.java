@@ -1,11 +1,16 @@
 package ch.bukkit.playground.instant.model;
 
 import ch.bukkit.playground.util.EntityHelper;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Round implements Validataeble {
+
+    private final static Logger logger = Logger.getLogger("Round");
 
     private Set<Reward> rewards = new HashSet<Reward>();
     private Map<String, Integer> mobs = new HashMap<String, Integer>();
@@ -40,7 +45,10 @@ public class Round implements Validataeble {
     @Override
     public boolean checkValidity() {
         for (Reward reward : rewards) {
-            if (!reward.checkValidity()) return false;
+            if (!reward.checkValidity()) {
+                logger.warning("Round: Found invalid rewards " + reward);
+                return false;
+            }
         }
 
         // we do not want to fail becuase just one name was wrong
@@ -49,11 +57,20 @@ public class Round implements Validataeble {
         for (String entity : mobNames) {
             Class<LivingEntity> entityClass = EntityHelper.getLivingEntityClassForName(entity);
             if (entityClass == null) {
+                logger.warning("Cannot load mob " + entity + " as its not a valid one.");
                 mobs.remove(entity);
             }
         }
 
-        return mobs.size() > 0 && rewards.size() > 0;
+        if (MapUtils.isEmpty(mobs)) {
+            logger.warning("No valid mobs specified. Round will be started without mobs");
+        }
+
+        if (CollectionUtils.isEmpty(rewards)) {
+            logger.warning("No valid rewards specified. Round will be started without rewards.");
+        }
+
+        return true;
     }
 
     @Override

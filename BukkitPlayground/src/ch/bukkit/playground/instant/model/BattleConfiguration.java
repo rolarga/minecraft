@@ -14,8 +14,11 @@ import org.bukkit.entity.Zombie;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class BattleConfiguration implements Validataeble {
+
+    private final static Logger logger = Logger.getLogger("BattleConfiguration");
 
     private boolean autostart = false;
     private int offset = 5;
@@ -218,16 +221,48 @@ public class BattleConfiguration implements Validataeble {
                 Init();
             }
             for (Level level : levels) {
-                if (!level.checkValidity()) return false;
+                if (!level.checkValidity()) {
+                    logger.warning("Found invalid level: " + level.getWelcomeMessage());
+                    return false;
+                }
             }
         }
 
-        return pos1 != null &&
-                pos2 != null &&
-                posStart != null &&
-                posSpectator != null &&
-                offset > 0. &&
-                duration > 0. &&
-                (battleType != BattleType.COOP || levels.size() > 0);
+        if (pos1 == null) {
+            logger.warning("Pos 1 has to be set");
+            return false;
+        }
+
+        if (pos2 == null) {
+            logger.warning("Pos 2 has to be set");
+            return false;
+        }
+
+        if (posStart == null) {
+            logger.warning("Pos Start has to be set");
+            return false;
+        }
+
+        if (posSpectator == null) {
+            logger.warning("Pos Spec has to be set");
+            return false;
+        }
+
+        if (offset < 1) {
+            logger.warning("Offset must be bigger then 0");
+            return false;
+        }
+
+        if (duration < 1) {
+            logger.warning("Duration must be bigger then 0");
+            return false;
+        }
+
+        if (battleType == BattleType.COOP && CollectionUtils.isEmpty(levels)) {
+            logger.warning("In COOP Mode there must be at least 1 level.");
+            return false;
+        }
+
+        return true;
     }
 }

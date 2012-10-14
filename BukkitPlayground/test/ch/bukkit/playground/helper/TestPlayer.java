@@ -176,6 +176,11 @@ public class TestPlayer implements Player {
     }
 
     @Override
+    public void playSound(Location location, Sound sound, float v, float v1) {
+
+    }
+
+    @Override
     public void playEffect(Location loc, Effect effect, int data) {
 
     }
@@ -371,6 +376,26 @@ public class TestPlayer implements Player {
     }
 
     @Override
+    public void setFlySpeed(float v) throws IllegalArgumentException {
+
+    }
+
+    @Override
+    public void setWalkSpeed(float v) throws IllegalArgumentException {
+
+    }
+
+    @Override
+    public float getFlySpeed() {
+        return 0;
+    }
+
+    @Override
+    public float getWalkSpeed() {
+        return 0;
+    }
+
+    @Override
     public void sendMessage(String message) {
         logger.info(message);
     }
@@ -440,6 +465,11 @@ public class TestPlayer implements Player {
     @Override
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    @Override
+    public Inventory getEnderChest() {
+        return null;
     }
 
     @Override

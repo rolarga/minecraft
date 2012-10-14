@@ -62,7 +62,7 @@ public class InstantHandler {
     public void start() {
         // start all valid configured battles
         for (BattleHandler battleHandler : battleHandlers.values()) {
-            if (battleHandler.getBattleConfiguration().checkValidity()) {
+            if (battleHandler.getBattleConfiguration().checkValidity() && battleHandler.getBattleConfiguration().isAutostart()) {
                 battleHandler.start();
                 logger.info("Starting battle: " + battleHandler.getName());
             } else {

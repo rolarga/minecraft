@@ -91,6 +91,11 @@ public class TestWorld implements World {
     }
 
     @Override
+    public boolean isChunkInUse(int i, int i1) {
+        return false;
+    }
+
+    @Override
     public void loadChunk(int x, int z) {
 
     }
@@ -361,6 +366,16 @@ public class TestWorld implements World {
     }
 
     @Override
+    public FallingBlock spawnFallingBlock(Location location, Material material, byte b) throws IllegalArgumentException {
+        return null;
+    }
+
+    @Override
+    public FallingBlock spawnFallingBlock(Location location, int i, byte b) throws IllegalArgumentException {
+        return null;
+    }
+
+    @Override
     public void playEffect(Location location, Effect effect, int data) {
 
     }
@@ -522,6 +537,11 @@ public class TestWorld implements World {
 
     @Override
     public void setWaterAnimalSpawnLimit(int limit) {
+
+    }
+
+    @Override
+    public void playSound(Location location, Sound sound, float v, float v1) {
 
     }
 

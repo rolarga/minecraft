@@ -1,5 +1,6 @@
 package ch.bukkit.playground.instant.eventhandlers.entity2player;
 
+import ch.bukkit.playground.InstantBattlePlugin;
 import ch.bukkit.playground.instant.BattleHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,9 @@ public class EntityDeath2PlayerEventHandler implements Entity2PlayerEventHandler
         if (player.hasPermission("instant.vip")) {
             death.getDrops().clear();
             death.setDroppedExp(0);
+            if (InstantBattlePlugin.DEBUG) {
+                logger.info("Saved inventory for vip player " + player.getName());
+            }
         }
     }
 }

@@ -71,6 +71,7 @@ public class InstantBattlePlugin extends JavaPlugin {
             String arg2 = args.length > 2 ? args[2] : null;
 
             instantHandler.handleOpCommands(name, arg1, arg2, player);
+
         } else if (isOP && cmd.getName().equalsIgnoreCase("instantop")) {
             Msg.sendMsg(player, "/instantop <battle> pos1|pos2|posstart|posspec|duration|offset|stat|start|stop|kick|ban|addspawn|clearspawn");
         } else if (isOP && cmd.getName().equalsIgnoreCase("instantdebug")) {

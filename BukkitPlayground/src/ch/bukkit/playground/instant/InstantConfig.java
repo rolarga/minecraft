@@ -92,8 +92,8 @@ public class InstantConfig {
             }
 
             try {
-                BattleConfiguration configuration = mapper.readValue(configFile, BattleConfiguration.class); //gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleConfiguration.class);
-                BattleData data = mapper.readValue(dataFile, BattleData.class); //gson.fromJson(FileUtils.readFileToString(configFile, InstantBattlePlugin.CHARSET.name()), BattleData.class);
+                BattleConfiguration configuration = mapper.readValue(configFile, BattleConfiguration.class);
+                BattleData data = mapper.readValue(dataFile, BattleData.class);
                 BattleHandler battleHandler = new BattleHandler(battleName, configuration, data);
                 battleHandlers.put(battleName, battleHandler);
             } catch (IOException e) {

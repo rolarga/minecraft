@@ -11,6 +11,7 @@ import ch.bukkit.playground.util.LocationHelper;
 import ch.bukkit.playground.util.Msg;
 import ch.bukkit.playground.util.PlayerUtil;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -52,7 +53,7 @@ public class BattleHandler {
             return;
         }
 
-        // mayber there are old battles running or so - so lets cleanup them first
+        // maybe there are old battles running or so - so lets cleanup them first
         cleanupBattle();
 
         if (battleData.getEndDate() != null && new Date().getTime() < (battleData.getEndDate().getTime() + 300000)) {
@@ -119,6 +120,21 @@ public class BattleHandler {
                 battleData.getRegisteredPlayers().clear();
                 battleData.setTotalActivePlayers(battleData.getActivePlayers().size());
                 battleData.setGroups(PlayerUtil.getEqualDistributedGroupByLevel(battleConfiguration.getGroupAmount(), battleData.getActivePlayers().keySet()));
+
+                if (battleConfiguration.getBattleType() == BattleType.GROUPPVP) {
+                    boolean firstGroup = false;
+                    for (List<Player> players : battleData.getGroups().values()) {
+                        firstGroup = !firstGroup;
+                        for (Player p : players) {
+                            if (firstGroup) {
+                                p.setDisplayName(ChatColor.RED + "RED: " + p.getName());
+                            } else {
+                                p.setDisplayName(ChatColor.BLUE + "BLUE: " + p.getName());
+                            }
+                        }
+                    }
+                }
+
                 InstantConfig.saveBattleHandler(BattleHandler.this);
 
                 new BroadcastTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + "A new instant battle starts now with %players% players!").run();
@@ -134,6 +150,9 @@ public class BattleHandler {
         for (final Level level : battleConfiguration.getLevels()) {
             // add spawns and welcome messages go each level/round
             battleData.addTask(new MessageTask(battleData.getActivePlayers().keySet(), ChatColor.YELLOW + level.getWelcomeMessage()), time);
+            if (InstantBattlePlugin.DEBUG)
+                logger.info("Welcome message " + level.getWelcomeMessage() + " at " + DateHelper.format(time));
+
             for (final Round round : level.getRounds()) {
                 // spawn the mobs
                 if (InstantBattlePlugin.DEBUG)
@@ -180,7 +199,6 @@ public class BattleHandler {
         cleanupBattle();
 
         battleData.getRegisteredPlayers().clear();
-        clearActivePlayersAndTeleportBack();
 
         logger.info("Timers are stopped, battle is over.");
 
@@ -201,14 +219,27 @@ public class BattleHandler {
         }
 
         // we found a mob which is not dead, so the players didnt win the battle
+        String playerNames = "";
         if (allMobsDead) {
             for (Player player : battleData.getActivePlayers().keySet()) {
                 if (!player.isDead()) {
                     player.sendMessage(ChatColor.GOLD + "You are one of the winners, congratulations!");
+
+                    if (StringUtils.isEmpty(playerNames)) {
+                        playerNames += ", ";
+                    }
+                    playerNames += player.getName();
+
                 } else {
                     player.sendMessage(ChatColor.GRAY + "Don't try to cheat - LOOSER!");
                 }
             }
+        }
+
+        if (StringUtils.isNotEmpty(playerNames)) {
+            new BroadcastTask(ChatColor.GOLD + "Battle in " + getName() + " is over. The following players have won: " + playerNames + ". CONGRATULATIONS!");
+        } else {
+            new BroadcastTask(ChatColor.RED + "Battle in " + getName() + " is over. Mobs won the battle! Noobs?");
         }
 
         cleanupBattle();
@@ -271,6 +302,7 @@ public class BattleHandler {
         battleData.getOriginSpectatorLocations().clear();
 
         for (Map.Entry<Player, Location> playerLocationEntry : playerLocationMap.entrySet()) {
+            playerLocationEntry.getKey().setDisplayName(playerLocationEntry.getKey().getName());
             playerLocationEntry.getKey().teleport(playerLocationEntry.getValue());
         }
     }

@@ -271,6 +271,11 @@ public class TestPlayer implements Player {
     }
 
     @Override
+    public void giveExpLevels(int i) {
+
+    }
+
+    @Override
     public float getExp() {
         return exp;
     }
@@ -337,6 +342,11 @@ public class TestPlayer implements Player {
 
     @Override
     public void setBedSpawnLocation(Location location) {
+
+    }
+
+    @Override
+    public void setBedSpawnLocation(Location location, boolean b) {
 
     }
 

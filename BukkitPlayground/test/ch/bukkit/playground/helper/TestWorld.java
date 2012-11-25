@@ -541,8 +541,38 @@ public class TestWorld implements World {
     }
 
     @Override
+    public int getAmbientSpawnLimit() {
+        return 0;
+    }
+
+    @Override
+    public void setAmbientSpawnLimit(int i) {
+
+    }
+
+    @Override
     public void playSound(Location location, Sound sound, float v, float v1) {
 
+    }
+
+    @Override
+    public String[] getGameRules() {
+        return new String[0];
+    }
+
+    @Override
+    public String getGameRuleValue(String s) {
+        return null;
+    }
+
+    @Override
+    public boolean setGameRuleValue(String s, String s1) {
+        return false;
+    }
+
+    @Override
+    public boolean isGameRule(String s) {
+        return false;
     }
 
     @Override

@@ -379,4 +379,24 @@ public class TestZombie implements Zombie {
     public void removeMetadata(String metadataKey, Plugin owningPlugin) {
 
     }
+
+    @Override
+    public boolean isBaby() {
+        return false;
+    }
+
+    @Override
+    public void setBaby(boolean b) {
+
+    }
+
+    @Override
+    public boolean isVillager() {
+        return false;
+    }
+
+    @Override
+    public void setVillager(boolean b) {
+
+    }
 }

@@ -2,7 +2,6 @@ package ch.bukkit.playground.instant;
 
 import ch.bukkit.playground.InstantBattlePlugin;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -61,14 +60,6 @@ public class InstantListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void entityExplode(EntityExplodeEvent expl) {
         instantHandler.handleEntityEvents(expl);
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void playerPreProcess(PlayerCommandPreprocessEvent expl) {
-        if (!expl.getPlayer().isOp() && (expl.getMessage().toLowerCase().startsWith("/plugin") || expl.getMessage().toLowerCase().startsWith("/pl"))) {
-            expl.setCancelled(true);
-            expl.getPlayer().sendMessage(ChatColor.RED + "You don't have permission to execute this command.");
-        }
     }
 }
 

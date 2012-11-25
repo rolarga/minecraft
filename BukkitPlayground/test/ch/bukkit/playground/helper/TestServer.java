@@ -321,6 +321,11 @@ public class TestServer implements Server {
     }
 
     @Override
+    public boolean isHardcore() {
+        return false;
+    }
+
+    @Override
     public boolean useExactLoginLocation() {
         return false;
     }
@@ -427,6 +432,11 @@ public class TestServer implements Server {
 
     @Override
     public int getWaterAnimalSpawnLimit() {
+        return 0;
+    }
+
+    @Override
+    public int getAmbientSpawnLimit() {
         return 0;
     }
 

@@ -16,4 +16,14 @@ public class OpTestPlayer extends TestPlayer {
     public boolean isOp() {
         return true;
     }
+
+    @Override
+    public void giveExpLevels(int i) {
+
+    }
+
+    @Override
+    public void setBedSpawnLocation(Location location, boolean b) {
+
+    }
 }

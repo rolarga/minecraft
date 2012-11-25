@@ -81,6 +81,11 @@ public class TestInventory implements PlayerInventory {
     }
 
     @Override
+    public int clear(int i, int i1) {
+        return 0;
+    }
+
+    @Override
     public int getSize() {
         return 0;
     }

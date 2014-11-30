@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<configSections>
+		<section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, log4net" />
+	</configSections>
+	<log4net debug="false">
+    
+    <appender name="RollingFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file type="log4net.Util.PatternString" value="ftpmultidownloader.log" />
+      <threshold value="INFO"/>
+      <appendToFile value="true" />
+      <rollingStyle value="Composite" />
+      <maxSizeRollBackups value="10" />
+      <maximumFileSize value="15000KB" />
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%d [%t] %-5p %c - %message%newline"/>
+      </layout>
+    </appender>    
+
+		<appender name="TraceToolAppender" type="Encontrol_Common.TraceToolAppender, Encontrol_Common">
+			<threshold value="ALL"/>
+			<Mode value="Normal" />
+			<WindowName value="iZsoClient" />
+		</appender>
+		
+		<root>
+			<priority value="ALL" />
+			<appender-ref ref="RollingFileAppender" />
+			<!-- <appender-ref ref="TraceToolAppender" /> -->
+		</root>
+	</log4net>
+</configuration>
